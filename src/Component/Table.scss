@@ -1,0 +1,57 @@
+.table {
+    width: 100%;
+    border-radius: 5px;
+    overflow: hidden; // Để các góc được bo tròn
+    padding: 30px;
+    width: 80%;
+    margin: auto;
+
+
+
+    &_container {
+        display: flex;
+        flex-direction: column;
+
+        &.vertical {
+            flex-direction: row;
+        }
+
+        &_header {
+            display: flex;
+            background-color: #f2f2f2; // Màu nền cho tiêu đề
+            font-weight: bold;
+
+            &.vertical {
+                flex-direction: column;
+                flex: 1 1;
+            }
+
+            &_cell {
+                flex: 1; // Chiều rộng cột chia đều
+                padding: 10px;
+                border: 1px solid #ccc; // Viền cho ô
+                text-align: center; // Canh giữa nội dung
+            }
+        }
+
+        &_row {
+            display: flex; // Sử dụng flexbox cho hàng
+
+            &.vertical {
+                flex-direction: column;
+                flex: 1 1;
+            }
+
+            // &:nth-child(even) {
+            //     background-color: #f9f9f9; // Màu nền cho hàng chẵn
+            // }
+
+            &_cell {
+                flex: 1; // Chiều rộng cột chia đều
+                padding: 10px;
+                border: 1px solid #ccc; // Viền cho ô
+                text-align: center; // Canh giữa nội dung
+            }
+        }
+    }
+}
