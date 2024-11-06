@@ -8,16 +8,18 @@ const Table = () => {
         { id: 2, name: 'Bob', age: 30, country: 'UK' },
         { id: 3, name: 'Charlie', age: 28, country: 'Canada' },
     ]);
-    const [columns, setColumns] = useState(["NO.", "Name", "Age", "Country"]);
     const [typeShow, setTypeShow] = useState(false);
     const [editingCell, setEditingCell] = useState({ rowIndex: null, field: null });
     const [newValue, setNewValue] = useState('');
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [addCount, setAddCount] = useState(1); // Số lượng hàng muốn thêm
+    const [addCount, setAddCount] = useState(1);
+    const [columns, setColumns] = useState(["NO.", "Name", "Age", "Country"]);
     const [newColumn, setNewColumn] = useState('');
-    const [selectedColumnIndex, setSelectedColumnIndex] = useState(null); // Chỉ số cột 
-    const [newColumnName, setNewColumnName] = useState(''); // Tên mới cho cột
-
+    const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
+    const [newColumnName, setNewColumnName] = useState('');
+    const [columnWidths, setColumnWidths] = useState(columns.map(() => '200px')); // Kích thước mặc định
+    const [selectedColumnForWidth, setSelectedColumnForWidth] = useState(null);
+    const [newColumnWidth, setNewColumnWidth] = useState('200');
 
     const handleDoubleClick = (rowIndex, field, value) => {
         setEditingCell({ rowIndex, field });
@@ -30,28 +32,26 @@ const Table = () => {
             return;
         }
 
-        // Kiểm tra xem tên cột có trùng không
         if (columns.map(column => column.toLowerCase()).includes(newColumn.toLowerCase())) {
             alert("Column already exists.");
             return;
         }
 
         setColumns([...columns, newColumn]);
+        setColumnWidths([...columnWidths, '200px']); // Thêm kích thước mặc định cho cột mới
 
-        // Cập nhật mỗi hàng trong data để thêm cột mới với giá trị rỗng
         const updatedData = data.map(row => ({
             ...row,
-            [newColumn.toLowerCase()]: '', // Thêm cột mới với giá trị rỗng
+            [newColumn.toLowerCase()]: '',
         }));
         setData(updatedData);
         setNewColumn('');
         setIsPopupOpen(false);
     };
 
-
     const addRowData = () => {
         const newRows = Array.from({ length: addCount }, (_, i) => ({
-            id: data.length + i + 1, //Sử dụng nếu id là person.id, còn id = key thì dòng này có thể có hoặc không.
+            id: data.length + i + 1,
             name: '',
             age: '',
             country: '',
@@ -63,7 +63,7 @@ const Table = () => {
         }
 
         setData([...data, ...newRows]);
-        setAddCount(1); // Reset số lượng thêm sau khi hoàn tất
+        setAddCount(1);
         setIsPopupOpen(false);
     };
 
@@ -102,7 +102,6 @@ const Table = () => {
     };
 
     const updateColumnName = (index) => {
-        //trim() xóa khoản trống đầu và đuôi của chuỗi nhập
         if (!newColumnName.trim()) {
             alert("Column name cannot be empty.");
             return;
@@ -113,11 +112,9 @@ const Table = () => {
         updatedColumns[index] = newColumnName;
         setColumns(updatedColumns);
 
-        // Cập nhật dữ liệu cho tất cả các hàng trong `data`
         const updatedData = data.map(row => {
-            // Di chuyển dữ liệu từ cột cũ sang cột mới
             row[newColumnName.toLowerCase()] = row[oldColumnName.toLowerCase()];
-            delete row[oldColumnName.toLowerCase()]; // Xóa cột cũ
+            delete row[oldColumnName.toLowerCase()];
             return row;
         });
 
@@ -126,24 +123,32 @@ const Table = () => {
         setSelectedColumnIndex(null);
     };
 
+    const updateColumnWidth = (index, width) => {
+        const updatedWidths = [...columnWidths];
+        updatedWidths[index] = `${width}px`;
+        setColumnWidths(updatedWidths);
+        setSelectedColumnForWidth(null);
+        setNewColumnWidth('200');
+    };
+
     return (
         <div className="table">
             <div className="table_gear" onClick={togglePopup}>⚙️</div>
             <div className={`table_container ${typeShow ? 'vertical' : ''}`}>
                 <div className={`table_container_header ${typeShow ? 'vertical' : ''}`}>
                     {columns.map((value, key) => (
-                        <div className="table_container_header_cell" key={key}>{value}</div>
+                        <div className="table_container_header_cell" key={key} style={{ width: columnWidths[key] }}>{value}</div>
                     ))}
-                    <div className="table_container_header_cell">Actions</div>
+                    <div className="table_container_header_cell" style={{width:'50px'}}>Actions</div>
                 </div>
                 {data.map((person, index) => (
                     <div className={`table_container_row ${typeShow ? 'vertical' : ''}`} key={index}>
-                        <div className="table_container_row_cell">{index + 1}</div>
+                        <div className="table_container_row_cell" style={{ width: columnWidths[0] }}>{index + 1}</div>
 
-                        {/* lập từ cột 2 giữ nguyên cột 1 */}
                         {columns.slice(1).map((column, colIndex) => (
                             <div
                                 className="table_container_row_cell"
+                                style={{ width: columnWidths[colIndex + 1] }}
                                 onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
                                 key={colIndex}
                             >
@@ -161,11 +166,10 @@ const Table = () => {
                             </div>
                         ))}
                         <div className="table_container_row_cell">
-                            <button onClick={() => deleteData(index)}>Delete</button>
+                            <button onClick={() => deleteData(index)}  style={{width:'50px'}}>Delete</button>
                         </div>
                     </div>
                 ))}
-
             </div>
 
             {isPopupOpen && (
@@ -179,10 +183,8 @@ const Table = () => {
                             </div>
                         </div>
 
-                        {/* Thay đổi kiểu hiển thị */}
                         <button className="table_popup_change" onClick={() => setTypeShow(!typeShow)}>Change</button>
 
-                        {/* Số lượng hàng muốn thêm */}
                         <label>
                             Number of rows to add:
                             <input
@@ -195,7 +197,6 @@ const Table = () => {
                         </label>
                         <button className="table_popup_add" onClick={addRowData}>Add {typeShow ? 'column' : 'row'}</button>
 
-                        {/* Thêm cột mới */}
                         <label>
                             New column name:
                             <input
@@ -204,18 +205,15 @@ const Table = () => {
                                 onChange={(e) => setNewColumn(e.target.value)}
                             />
                         </label>
-                        <div className="table_popup_togle">
-                            <button className="table_popup_add" onClick={addColumn}>Add {typeShow ? 'row' : 'column'}</button>
-                        </div>
+                        <button className="table_popup_add" onClick={addColumn}>Add {typeShow ? 'row' : 'column'}</button>
 
-                        {/* Chỉnh sửa tên cột */}
                         <div>
-                            chọn cột đổi tên
+                            Chọn cột đổi tên
                             <select
                                 value={selectedColumnIndex}
                                 onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
                             >
-                                <option value={null}>-- chọn cột --</option>
+                                <option value={null}>-- Chọn cột --</option>
                                 {columns.map((col, index) => (
                                     <option key={index} value={index}>{col}</option>
                                 ))}
@@ -235,12 +233,35 @@ const Table = () => {
                             </>
                         )}
 
-                        <button className="table_popup_close" onClick={togglePopup}>Close</button>
+                        <div>
+                            Chọn cột để chỉnh kích thước
+                            <select
+                                value={selectedColumnForWidth}
+                                onChange={(e) => setSelectedColumnForWidth(Number(e.target.value))}
+                            >
+                                <option value={null}>-- Chọn cột --</option>
+                                {columns.map((col, index) => (
+                                    <option key={index} value={index}>{col}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {selectedColumnForWidth !== null && (
+                            <>
+                                <div>
+                                    Width for {columns[selectedColumnForWidth]}:
+                                    <input
+                                        type="number"
+                                        value={newColumnWidth}
+                                        onChange={(e) => setNewColumnWidth(e.target.value)}
+                                    />
+                                    px
+                                </div>
+                                <button onClick={() => updateColumnWidth(selectedColumnForWidth, newColumnWidth)}>Update Column Width</button>
+                            </>
+                        )}
                     </div>
                 </>
             )}
-
-
         </div>
     );
 };

@@ -1,10 +1,10 @@
 .table {
-    width: 100%;
+
     border-radius: 5px;
     overflow: hidden; // Để các góc được bo tròn
     padding: 30px;
-    width: 80%;
-    margin: auto;
+    width: 1000px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
 
@@ -18,19 +18,18 @@
 
         &_header {
             display: flex;
-            background-color: #f2f2f2; // Màu nền cho tiêu đề
             font-weight: bold;
 
             &.vertical {
                 flex-direction: column;
-                flex: 1 1;
+                
             }
 
             &_cell {
-                flex: 1; // Chiều rộng cột chia đều
                 padding: 10px;
                 border: 1px solid #ccc; // Viền cho ô
                 text-align: center; // Canh giữa nội dung
+                background-color: #f2f2f2;
             }
         }
 
@@ -39,7 +38,7 @@
 
             &.vertical {
                 flex-direction: column;
-                flex: 1 1;
+                
             }
 
             // &:nth-child(even) {
@@ -47,7 +46,7 @@
             // }
 
             &_cell {
-                flex: 1; // Chiều rộng cột chia đều
+
                 padding: 10px;
                 border: 1px solid #ccc; // Viền cho ô
                 text-align: center; // Canh giữa nội dung
@@ -166,4 +165,10 @@
         cursor: pointer;
         text-align: right;
     }
+}
+
+.table_container_header_cell,
+.table_container_row_cell {
+    overflow: hidden;
+    white-space: nowrap;
 }
