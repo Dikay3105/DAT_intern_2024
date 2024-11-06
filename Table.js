@@ -107,12 +107,12 @@ const Table = () => {
             alert("Column name cannot be empty.");
             return;
         }
-
+    
         const oldColumnName = columns[index];
         const updatedColumns = [...columns];
         updatedColumns[index] = newColumnName;
         setColumns(updatedColumns);
-
+    
         // Cập nhật dữ liệu cho tất cả các hàng trong `data`
         const updatedData = data.map(row => {
             // Di chuyển dữ liệu từ cột cũ sang cột mới
@@ -120,12 +120,12 @@ const Table = () => {
             delete row[oldColumnName.toLowerCase()]; // Xóa cột cũ
             return row;
         });
-
+    
         setData(updatedData);
-        setNewColumnName('');
-        setSelectedColumnIndex(null);
+        setNewColumnName(''); 
+        setSelectedColumnIndex(null); 
     };
-
+    
     return (
         <div className="table">
             <div className="table_gear" onClick={togglePopup}>⚙️</div>

@@ -5,8 +5,8 @@
     padding: 30px;
     width: 80%;
     margin: auto;
-
-
+    display: flex;
+    flex-direction: column;
 
     &_container {
         display: flex;
@@ -51,7 +51,119 @@
                 padding: 10px;
                 border: 1px solid #ccc; // Viền cho ô
                 text-align: center; // Canh giữa nội dung
+
+                input {
+                    height: 100%;
+                    width: 100%;
+                    font-size: 16px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    outline: none;
+                    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+                    transition: border-color 0.3s, box-shadow 0.3s;
+                }
+
+                /* Hiệu ứng khi người dùng click vào ô input */
+                input:focus {
+                    border-color: #007bff;
+                    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+                }
+
+                /* Thêm hiệu ứng khi hover */
+                input:hover {
+                    border-color: #999;
+                }
+
+                /* Định dạng lại placeholder (nếu có) */
+                input::placeholder {
+                    color: #888;
+                    font-style: italic;
+                }
+
             }
         }
+    }
+
+    &_overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+
+    &_popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        z-index: 2;
+
+        &_title {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        h3 {
+            margin: 0px !important;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        &_add {
+            background-color: #08D9D6;
+            /* Màu nền cho nút thêm hàng */
+            color: white;
+        }
+
+        &_change {
+            margin-top: 10px;
+            background-color: #252A34;
+            color: white;
+        }
+
+        &_close {
+            background-color: #FF2E63;
+        }
+
+        &_update {
+            background-color: #EAEAEA;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        &_togle {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    &_gear {
+        position: relative;
+        cursor: pointer;
+        text-align: right;
     }
 }
