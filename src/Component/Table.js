@@ -20,6 +20,7 @@ const Table = () => {
     const [columnWidths, setColumnWidths] = useState(columns.map(() => '200px')); // Kích thước mặc định
     const [selectedColumnForWidth, setSelectedColumnForWidth] = useState(null);
     const [newColumnWidth, setNewColumnWidth] = useState('200');
+    const [columnToDelete, setColumnToDelete] = useState(null); // Cột muốn xóa
 
     const handleDoubleClick = (rowIndex, field, value) => {
         setEditingCell({ rowIndex, field });
@@ -131,6 +132,28 @@ const Table = () => {
         setNewColumnWidth('200');
     };
 
+    const deleteColumn = () => {
+        if (columns[columnToDelete] === "NO.") {
+            alert("Cannot delete the NO. column.");
+            return;
+        }
+
+        if (columnToDelete !== null) {
+            const updatedColumns = columns.filter((_, index) => index !== columnToDelete);
+            setColumns(updatedColumns);
+
+            const updatedData = data.map(row => {
+                const updatedRow = { ...row };
+                delete updatedRow[columns[columnToDelete].toLowerCase()];
+                return updatedRow;
+            });
+
+            setData(updatedData);
+            setColumnToDelete(null);
+            setIsPopupOpen(false);
+        }
+    };
+
     return (
         <div className="table">
             <div className="table_gear" onClick={togglePopup}>⚙️</div>
@@ -139,7 +162,7 @@ const Table = () => {
                     {columns.map((value, key) => (
                         <div className="table_container_header_cell" key={key} style={{ width: columnWidths[key] }}>{value}</div>
                     ))}
-                    <div className="table_container_header_cell" style={{width:'50px'}}>Actions</div>
+                    <div className="table_container_header_cell" style={{ width: '50px' }}>Actions</div>
                 </div>
                 {data.map((person, index) => (
                     <div className={`table_container_row ${typeShow ? 'vertical' : ''}`} key={index}>
@@ -166,7 +189,7 @@ const Table = () => {
                             </div>
                         ))}
                         <div className="table_container_row_cell">
-                            <button onClick={() => deleteData(index)}  style={{width:'50px'}}>Delete</button>
+                            <button onClick={() => deleteData(index)} style={{ width: '50px' }}>Delete</button>
                         </div>
                     </div>
                 ))}
@@ -259,6 +282,22 @@ const Table = () => {
                                 <button onClick={() => updateColumnWidth(selectedColumnForWidth, newColumnWidth)}>Update Column Width</button>
                             </>
                         )}
+                        <div>
+                            Chọn cột để xóa
+                            <select
+                                value={columnToDelete}
+                                onChange={(e) => setColumnToDelete(Number(e.target.value))}
+                            >
+                                <option value={null}>-- Chọn cột --</option>
+                                {columns.map((col, index) => (
+                                    <option key={index} value={index}>{col}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {columnToDelete !== null && (
+                            <button onClick={deleteColumn}>Delete Column</button>
+                        )}
+
                     </div>
                 </>
             )}
