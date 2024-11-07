@@ -3,14 +3,16 @@
     border-radius: 5px;
     overflow: hidden; // Để các góc được bo tròn
     padding: 30px;
-    width: 1000px;
-    margin: 0 auto;
+    margin-left: 4%;
+    width: 90%;
     display: flex;
     flex-direction: column;
 
     &_container {
         display: flex;
         flex-direction: column;
+        height: 400px;
+        overflow: auto;
 
         &.vertical {
             flex-direction: row;
@@ -19,10 +21,15 @@
         &_header {
             display: flex;
             font-weight: bold;
+            cursor: pointer;
+            position: sticky;
+            right: 0;
+            top: 0;
+            z-index: 3;
 
             &.vertical {
                 flex-direction: column;
-                
+
             }
 
             &_cell {
@@ -30,26 +37,43 @@
                 border: 1px solid #ccc; // Viền cho ô
                 text-align: center; // Canh giữa nội dung
                 background-color: #f2f2f2;
+
+                flex: auto;
+
+                &:last-child {
+                    background: white;
+                    border: none;
+                }
+
             }
         }
 
         &_row {
-            display: flex; // Sử dụng flexbox cho hàng
+            display: flex;
+            cursor: pointer;
+            position: relative;
+
+            &:hover {
+                background-color: #9999992c;
+            }
 
             &.vertical {
                 flex-direction: column;
-                
             }
 
-            // &:nth-child(even) {
-            //     background-color: #f9f9f9; // Màu nền cho hàng chẵn
-            // }
-
             &_cell {
-
                 padding: 10px;
-                border: 1px solid #ccc; // Viền cho ô
-                text-align: center; // Canh giữa nội dung
+                border: 1px solid #ccc;
+                text-align: center;
+                flex: auto;
+                position: relative;
+
+                &:last-child {
+                    background: white;
+                    border: none;
+                    text-align: start;
+
+                }
 
                 input {
                     height: 100%;
@@ -60,27 +84,43 @@
                     outline: none;
                     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
                     transition: border-color 0.3s, box-shadow 0.3s;
+
+                    &:focus {
+                        border-color: #007bff;
+                        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+                    }
+
+                    &:hover {
+                        border-color: #999;
+                    }
+
+                    &::placeholder {
+                        color: #888;
+                        font-style: italic;
+                    }
                 }
 
-                /* Hiệu ứng khi người dùng click vào ô input */
-                input:focus {
-                    border-color: #007bff;
-                    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-                }
+                button {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    visibility: hidden;
 
-                /* Thêm hiệu ứng khi hover */
-                input:hover {
-                    border-color: #999;
+                    &:hover {
+                        visibility: hidden;
+                    }
                 }
+            }
 
-                /* Định dạng lại placeholder (nếu có) */
-                input::placeholder {
-                    color: #888;
-                    font-style: italic;
-                }
-
+            /* Hiển thị nút button khi hover vào toàn bộ hàng */
+            &:hover button {
+                transition: visibility 0.3s ease-in-out;
+                visibility: visible;
+                /* Hiện nút khi hover vào hàng */
             }
         }
+
+
     }
 
     &_overlay {
@@ -90,11 +130,13 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1;
+        z-index: 2;
     }
 
     &_popup {
         position: fixed;
+        width: 40%;
+        height: 60%;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -102,11 +144,117 @@
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
-        z-index: 2;
+        z-index: 3;
+        overflow: auto;
 
         &_title {
             display: flex;
             justify-content: space-between;
+
+        }
+
+        &_main {
+            margin-top: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            &_dropdown {
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 10px;
+
+                &_title {
+                    display: flex;
+                    align-items: center;
+                    margin-top: 10px;
+                    cursor: pointer;
+                    transition: color 0.2s ease-in-out;
+
+                    &:hover {
+                        transition: color 0.2s ease-in-out;
+                        color: #007bff;
+                    }
+                }
+
+                &_content {
+                    margin-top: 10px;
+                    margin-left: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.2s ease-out;
+
+                    &.active {
+                        max-height: 500px;
+                        transition: max-height 0.3s ease-in-out;
+                    }
+
+                    &_item {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-top: 10px;
+
+                        &_change {
+                            position: relative;
+                            width: 200px;
+                            font-family: 'Arial', sans-serif;
+                            margin-left: 10px;
+
+                            &_select {
+                                width: 100%;
+                                padding: 10px 40px 10px 20px;
+                                /* Thêm padding để tạo không gian cho biểu tượng */
+                                font-size: 14px;
+                                color: #333;
+                                background-color: #f0f0f0;
+                                border: 1px solid #ccc;
+                                border-radius: 5px;
+                                appearance: none;
+                                /* Tắt giao diện mặc định của trình duyệt */
+                                outline: none;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+
+                                &:focus {
+                                    border-color: #007bff;
+                                    background-color: #fff;
+                                }
+
+                                /* Chỉnh sửa cho phần tử option */
+                                option {
+                                    padding: 10px;
+                                    background-color: #fff;
+                                    color: #333;
+                                    border: 1px solid #ddd;
+
+                                    &:hover {
+                                        background-color: #f0f0f0;
+                                    }
+                                }
+                            }
+
+                            &::after {
+                                content: '▼';
+                                /* Biểu tượng mũi tên */
+                                position: absolute;
+                                right: 10px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                font-size: 14px;
+                                color: #333;
+                                pointer-events: none;
+                                /* Để tránh làm ảnh hưởng đến sự kiện chọn */
+                            }
+                        }
+
+
+                    }
+                }
+            }
         }
 
         h3 {
@@ -115,15 +263,12 @@
 
         label {
             display: block;
-            margin-bottom: 10px;
         }
 
         input {
-            width: 90%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            margin-top: 5px;
         }
 
         &_add {
@@ -147,11 +292,14 @@
         }
 
         button {
-            margin-right: 10px;
-            padding: 10px 15px;
+            padding: 8px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
         }
 
         &_togle {
@@ -163,7 +311,8 @@
     &_gear {
         position: relative;
         cursor: pointer;
-        text-align: right;
+        width: 20px;
+        margin-bottom: 10px;
     }
 }
 
