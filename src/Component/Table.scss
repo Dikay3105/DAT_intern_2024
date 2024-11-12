@@ -90,6 +90,16 @@
                 flex-direction: column;
             }
 
+            &:nth-child(odd) {
+                background-color: blue !important;
+                /* Cột lẻ */
+            }
+
+            // &:nth-child(even) {
+            //     background-color: #e9e9e9;
+            //     /* Cột chẵn */
+            // }
+
             &.show-border {
                 &::after {
                     content: '';
@@ -111,6 +121,9 @@
                 text-align: center;
                 // flex: auto;
                 position: relative;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
 
                 &:last-child {
                     background: white;
@@ -392,4 +405,8 @@
 .table_container_row_cell {
     overflow: hidden;
     white-space: nowrap;
+}
+
+.highlight-odd {
+    background-color: blue !important;
 }
