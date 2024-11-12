@@ -3,6 +3,7 @@ import './Table.scss';
 import { IoMdClose } from 'react-icons/io';
 import { IoIosArrowDown, IoIosAddCircleOutline } from "react-icons/io";
 import { TiDelete } from "react-icons/ti";
+import { Tooltip } from 'react-tooltip'
 
 const Table = () => {
     const [data, setData] = useState([
@@ -35,13 +36,16 @@ const Table = () => {
     const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
     const [newColumnName, setNewColumnName] = useState('');
     const [columnWidths, setColumnWidths] = useState(columns.map(() => '200px')); // Kích thước mặc định
+    const [columnBackgroundColors, setColumnBackgroundColors] = useState(columns.map(() => '')); // Kích thước mặc định
     const [selectedColumnForWidth, setSelectedColumnForWidth] = useState(null);
     const [newColumnWidth, setNewColumnWidth] = useState('200');
     const [columnToDelete, setColumnToDelete] = useState(null); // Cột muốn xóa
     const [openDropdowns, setOpenDropdowns] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [selectedColumn, setSelectedColumn] = useState(2);
     const [isNearBottom, setIsNearBottom] = useState(false);
-    const borderThreshold = 10;
+    // Lấy tất cả các hàng trong bảng
+
 
     const handleMouseMove = (index, e) => {
         const div = e.currentTarget;
@@ -221,6 +225,14 @@ const Table = () => {
         setNewColumnWidth('200');
     };
 
+    const updateColumnBackgroundColor = (index, backgroundColor) => {
+        const updatedBackgroundColors = [...columnBackgroundColors];
+        updatedBackgroundColors[index] = backgroundColor;
+        setColumnBackgroundColors(updatedBackgroundColors);
+        // setSelectedColumnForBackgroundColor(null);
+        // setNewColumnBackgroundColor('white');
+    };
+
     const deleteColumn = () => {
         // Kiểm tra nếu cột được chọn là "NO."
         if (columns[columnToDelete] === "NO.") {
@@ -257,9 +269,9 @@ const Table = () => {
             <div className="table">
 
                 <div className={`table_container ${typeShow ? 'vertical' : ''}`}>
-                    <div className={`table_container_header ${typeShow ? 'vertical' : ''}`}>
+                    <div className={`table_container_header ${typeShow ? 'vertical' : ''}`} >
                         {columns.map((value, key) => (
-                            <div className="table_container_header_cell" key={key} style={{ width: columnWidths[key] }}>{value}</div>
+                            <div className="table_container_header_cell" onClick={() => updateColumnBackgroundColor(key, 'green')} key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>{value}</div>
                         ))}
                         <div className="table_container_header_cell" style={{ width: typeShow ? '200px' : '30px' }}></div>
                     </div>
@@ -271,16 +283,19 @@ const Table = () => {
                             onMouseMove={(e) => handleMouseMove(index, e)}  // Vẫn giữ sự kiện onMouseMove
                             onMouseLeave={() => setIsNearBottom(null)} // Reset khi mouse rời
                         >
-                            <div className="table_container_row_cell" style={{ width: columnWidths[0] }}>
+                            <div className="table_container_row_cell" style={{ width: columnWidths[0], backgroundColor: columnBackgroundColors[0] }}>
                                 {index + 1}
                             </div>
 
                             {columns.slice(1).map((column, colIndex) => (
                                 <div
                                     className={`table_container_row_cell ${typeShow ? 'vertical' : ''}`}
-                                    style={{ width: columnWidths[colIndex + 1] }}
+                                    style={{ width: columnWidths[colIndex + 1], backgroundColor: columnBackgroundColors[colIndex + 1] }}
                                     onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
                                     key={colIndex}
+                                    data-tooltip-id='table_tooltip'
+                                    data-tooltip-content={person[column.toLowerCase()] || ''}
+                                    data-tooltip-place="bottom"
                                 >
                                     {editingCell.rowIndex === index && editingCell.field === column.toLowerCase() ? (
                                         <input
@@ -303,7 +318,7 @@ const Table = () => {
                         </div>
                     ))}
 
-
+                    <Tooltip id="table_tooltip" />
                 </div>
 
                 {
