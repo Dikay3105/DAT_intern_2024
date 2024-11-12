@@ -4,27 +4,13 @@ import { IoMdClose } from 'react-icons/io';
 import { IoIosArrowDown, IoIosAddCircleOutline } from "react-icons/io";
 import { TiDelete } from "react-icons/ti";
 import { Tooltip } from 'react-tooltip'
+import { MdOutlineMoreVert } from 'react-icons/md';
 
 const Table = () => {
     const [data, setData] = useState([
         { id: 1, name: 'Alice', age: 25, country: 'USA' },
         { id: 2, name: 'Bob', age: 30, country: 'UK' },
         { id: 3, name: 'Charlie', age: 28, country: 'Canada' },
-        { id: 4, name: 'Alice', age: 25, country: 'USA' },
-        { id: 5, name: 'Bob', age: 30, country: 'UK' },
-        { id: 6, name: 'Charlie', age: 28, country: 'Canada' },
-        { id: 7, name: 'Alice', age: 25, country: 'USA' },
-        { id: 8, name: 'Bob', age: 30, country: 'UK' },
-        { id: 9, name: 'Charlie', age: 28, country: 'Canada' },
-        { id: 10, name: 'Alice', age: 25, country: 'USA' },
-        { id: 11, name: 'Bob', age: 30, country: 'UK' },
-        { id: 12, name: 'Charlie', age: 28, country: 'Canada' },
-        { id: 13, name: 'Alice', age: 25, country: 'USA' },
-        { id: 14, name: 'Bob', age: 30, country: 'UK' },
-        { id: 15, name: 'Charlie', age: 28, country: 'Canada' },
-        { id: 16, name: 'Alice', age: 25, country: 'USA' },
-        { id: 17, name: 'Bob', age: 30, country: 'UK' },
-        { id: 18, name: 'Charlie', age: 28, country: 'Canada' },
     ]);
     const [typeShow, setTypeShow] = useState(false);
     const [editingCell, setEditingCell] = useState({ rowIndex: null, field: null });
@@ -44,7 +30,7 @@ const Table = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedColumn, setSelectedColumn] = useState(2);
     const [isNearBottom, setIsNearBottom] = useState(false);
-    // Lấy tất cả các hàng trong bảng
+    const [openPopupColumn, setOpenPopupColumn] = useState(false)
 
 
     const handleMouseMove = (index, e) => {
@@ -161,8 +147,8 @@ const Table = () => {
 
 
     const deleteData = (index) => {
-        if (data.length <= 1) {
-            alert("Cannot delete the last remaining item.");
+        if (data.length <= 2) {
+            alert("Cannot delete smaller 2 item.");
             return;
         }
 
@@ -194,6 +180,10 @@ const Table = () => {
     const togglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
     };
+
+    const handlPopupColumn = () => {
+        setOpenPopupColumn(!openPopupColumn)
+    }
 
     const updateColumnName = (index) => {
         if (!newColumnName.trim()) {
@@ -235,8 +225,8 @@ const Table = () => {
 
     const deleteColumn = () => {
         // Kiểm tra nếu cột được chọn là "NO."
-        if (columns[columnToDelete] === "NO.") {
-            alert("Cannot delete the NO. column.");
+        if (columns.length <= 2) {
+            alert("Cannot delete column smaller 2 column.");
             return;
         }
 
@@ -265,13 +255,15 @@ const Table = () => {
 
     return (
         <>
-            <div className="table_gear" onClick={togglePopup}>⚙️</div>
+            <div className="table_gear" onClick={() => setIsPopupOpen(true)}>⚙️</div>
             <div className="table">
 
                 <div className={`table_container ${typeShow ? 'vertical' : ''}`}>
                     <div className={`table_container_header ${typeShow ? 'vertical' : ''}`} >
                         {columns.map((value, key) => (
-                            <div className="table_container_header_cell" onClick={() => updateColumnBackgroundColor(key, 'green')} key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>{value}</div>
+                            <div className="table_container_header_cell" onClick={() => updateColumnBackgroundColor(key, 'green')} key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>{value}
+                                <div className="table_container_header_cell_icon" onClick={handlPopupColumn}><MdOutlineMoreVert /></div>
+                            </div>
                         ))}
                         <div className="table_container_header_cell" style={{ width: typeShow ? '200px' : '30px' }}></div>
                     </div>
@@ -320,7 +312,6 @@ const Table = () => {
 
                     <Tooltip id="table_tooltip" />
                 </div>
-
                 {
                     isPopupOpen && (
                         <>
@@ -386,9 +377,27 @@ const Table = () => {
 
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </>
+                    )
+                }
+
+                {
+                    openPopupColumn && (
+                        <>
+                            <div className="table_overlay" onClick={handlPopupColumn}></div>
+                            <div className="table_popup" style={{ height: "auto" }}>
+                                <div className="table_popup_title">
+                                    <h3>Settings Column</h3>
+                                    <div onClick={() => setOpenPopupColumn(false)} style={{ cursor: "pointer" }}>
+                                        <IoMdClose />
+                                    </div>
+                                </div>
+                                <div className="table_popup_main">
                                     <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(2)}>Column<IoIosArrowDown /></div>
-                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(2) ? 'active' : ''}`}>
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(0)}>Add Column<IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(0) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item">
                                                 <label>
                                                     New column name:
@@ -400,11 +409,17 @@ const Table = () => {
                                                 />
                                                 <button className="table_popup_add" onClick={addColumn}>Add</button>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="table_popup_main_dropdown">
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(1)}>Change name Column<IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(1) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item">
                                                 Chọn cột đổi tên:
                                                 <select
                                                     value={selectedColumnIndex}
                                                     onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
+                                                    className="table_popup_main_dropdown_content_item_select"
                                                 >
                                                     <option value={null}>-- Chọn cột --</option>
                                                     {columns.map((col, index) => (
@@ -425,11 +440,17 @@ const Table = () => {
                                                     </>
                                                 )}
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="table_popup_main_dropdown">
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(3)}>Size Adjustment<IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(3) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item">
                                                 Chọn cột để chỉnh kích thước:
                                                 <select
                                                     value={selectedColumnForWidth}
                                                     onChange={(e) => setSelectedColumnForWidth(Number(e.target.value))}
+                                                    className="table_popup_main_dropdown_content_item_select"
                                                 >
                                                     <option value={null}>-- Chọn cột --</option>
                                                     {columns.map((col, index) => (
@@ -439,7 +460,6 @@ const Table = () => {
 
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item">
-
                                                 {selectedColumnForWidth !== null && (
                                                     <>
                                                         Width for {columns[selectedColumnForWidth]}:
@@ -453,11 +473,17 @@ const Table = () => {
                                                     </>
                                                 )}
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="table_popup_main_dropdown">
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(4)}>Del Column<IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(4) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item">
                                                 Chọn cột để xóa:
                                                 <select
                                                     value={columnToDelete}
                                                     onChange={(e) => setColumnToDelete(Number(e.target.value))}
+                                                    className="table_popup_main_dropdown_content_item_select"
                                                 >
                                                     <option value={null}>-- Chọn cột --</option>
                                                     {columns.map((col, index) => (

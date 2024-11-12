@@ -1,5 +1,4 @@
 .table {
-
     border-radius: 5px;
     overflow: auto; // Để các góc được bo tròn
     padding: 30px;
@@ -63,7 +62,11 @@
                 text-align: center; // Canh giữa nội dung
                 background-color: #f2f2f2;
                 // flex: auto;
-
+                display: flex;
+                justify-content: center;
+                &_icon{
+                    margin-top: 3px;
+                }
                 &:last-child {
                     background: white;
                     border: none;
@@ -241,24 +244,53 @@
                     max-height: 0;
                     overflow: hidden;
                     transition: max-height 0.2s ease-out;
-
                     &.active {
                         max-height: 500px;
                         transition: max-height 0.3s ease-in-out;
                     }
-
                     &_item {
                         display: flex;
                         align-items: center;
                         gap: 10px;
                         margin-top: 10px;
-
+                        justify-content: space-between;
+                        &_select {
+                            width: 60%;
+                            padding: 10px 40px 10px 20px;
+                            /* Thêm padding để tạo không gian cho biểu tượng */
+                            font-size: 14px;
+                            color: #333;
+                            background-color: #f0f0f0;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            appearance: none;
+                            /* Tắt giao diện mặc định của trình duyệt */
+                            outline: none;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+    
+                            &:focus {
+                                border-color: #007bff;
+                                background-color: #fff;
+                            }
+    
+                            /* Chỉnh sửa cho phần tử option */
+                            option {
+                                padding: 10px;
+                                background-color: #fff;
+                                color: #333;
+                                border: 1px solid #ddd;
+    
+                                &:hover {
+                                    background-color: #f0f0f0;
+                                }
+                            }
+                        }
                         &_change {
                             position: relative;
                             width: 200px;
                             font-family: 'Arial', sans-serif;
                             margin-left: 10px;
-
                             &_select {
                                 width: 100%;
                                 padding: 10px 40px 10px 20px;
@@ -305,8 +337,6 @@
                                 /* Để tránh làm ảnh hưởng đến sự kiện chọn */
                             }
                         }
-
-
                     }
                 }
             }
