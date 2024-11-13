@@ -8,16 +8,16 @@ import { MdOutlineMoreVert } from 'react-icons/md';
 
 const Table = () => {
     const [data, setData] = useState([
-        { id: 1, name: 'Alice', age: 25, country: 'USA' },
-        { id: 2, name: 'Bob', age: 30, country: 'UK' },
-        { id: 3, name: 'Charlie', age: 28, country: 'Canada' },
+        { id: 1, no: 1, name: 'Alice', age: 25, country: 'USA' },
+        { id: 2, no: 2, name: 'Bob', age: 30, country: 'UK' },
+        { id: 3, no: 3, name: 'Charlie', age: 28, country: 'Canada' },
     ]);
     const [typeShow, setTypeShow] = useState(false);
     const [editingCell, setEditingCell] = useState({ rowIndex: null, field: null });
     const [newValue, setNewValue] = useState('');
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [addCount, setAddCount] = useState(1);
-    const [columns, setColumns] = useState(["NO.", "Name", "Age", "Country"]);
+    const [columns, setColumns] = useState(["NO", "Name", "Age", "Country"]);
     const [newColumn, setNewColumn] = useState('');
     const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
     const [newColumnName, setNewColumnName] = useState('');
@@ -275,14 +275,14 @@ const Table = () => {
                             onMouseMove={(e) => handleMouseMove(index, e)}  // Vẫn giữ sự kiện onMouseMove
                             onMouseLeave={() => setIsNearBottom(null)} // Reset khi mouse rời
                         >
-                            <div className="table_container_row_cell" style={{ width: columnWidths[0], backgroundColor: columnBackgroundColors[0] }}>
+                            {/* <div className="table_container_row_cell" style={{ width: columnWidths[0], backgroundColor: columnBackgroundColors[0] }}>
                                 {index + 1}
-                            </div>
+                            </div> */}
 
-                            {columns.slice(1).map((column, colIndex) => (
+                            {columns.map((column, colIndex) => (
                                 <div
                                     className={`table_container_row_cell ${typeShow ? 'vertical' : ''}`}
-                                    style={{ width: columnWidths[colIndex + 1], backgroundColor: columnBackgroundColors[colIndex + 1] }}
+                                    style={{ width: columnWidths[colIndex], backgroundColor: columnBackgroundColors[colIndex] }}
                                     onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
                                     key={colIndex}
                                     data-tooltip-id='table_tooltip'
