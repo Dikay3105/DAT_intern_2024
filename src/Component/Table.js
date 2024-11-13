@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import './Table.scss';
 import { IoMdClose } from 'react-icons/io';
-import { IoIosArrowDown, IoIosAddCircleOutline } from "react-icons/io";
+import { IoIosArrowDown } from "react-icons/io";
 import { TiDelete } from "react-icons/ti";
 import { Tooltip } from 'react-tooltip'
 import { MdOutlineMoreVert } from 'react-icons/md';
+import { SketchPicker } from 'react-color';
 
 const Table = () => {
     const [data, setData] = useState([
@@ -13,25 +14,23 @@ const Table = () => {
         { id: 3, name: 'Charlie', age: 28, country: 'Canada' },
     ]);
     const [typeShow, setTypeShow] = useState(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [isNearBottom, setIsNearBottom] = useState(false);
+    const [openPopupColumn, setOpenPopupColumn] = useState(false);
     const [editingCell, setEditingCell] = useState({ rowIndex: null, field: null });
     const [newValue, setNewValue] = useState('');
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [addCount, setAddCount] = useState(1);
     const [columns, setColumns] = useState(["NO.", "Name", "Age", "Country"]);
     const [newColumn, setNewColumn] = useState('');
     const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
-    const [newColumnName, setNewColumnName] = useState('');
     const [columnWidths, setColumnWidths] = useState(columns.map(() => '200px')); // Kích thước mặc định
-    const [columnBackgroundColors, setColumnBackgroundColors] = useState(columns.map(() => '')); // Kích thước mặc định
-    const [selectedColumnForWidth, setSelectedColumnForWidth] = useState(null);
+    const [columnBackgroundColors, setColumnBackgroundColors] = useState(columns.map(() => ''));
     const [newColumnWidth, setNewColumnWidth] = useState('200');
-    const [columnToDelete, setColumnToDelete] = useState(null); // Cột muốn xóa
     const [openDropdowns, setOpenDropdowns] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
-    const [selectedColumn, setSelectedColumn] = useState(2);
-    const [isNearBottom, setIsNearBottom] = useState(false);
-    const [openPopupColumn, setOpenPopupColumn] = useState(false)
-
+    const [selectedColor, setSelectedColor] = useState('#FFFFFF'); // Màu mặc định
+    const [selectedFont, setSelectedFont] = useState('Roboto');
+    const [fontSize, setFontSize] = useState(16); // Kích thước mặc định
 
     const handleMouseMove = (index, e) => {
         const div = e.currentTarget;
@@ -181,46 +180,42 @@ const Table = () => {
         setIsPopupOpen(!isPopupOpen);
     };
 
-    const handlPopupColumn = () => {
+    const handlPopupColumn = (columnIndex) => {
+        setSelectedColumnIndex(columnIndex);
         setOpenPopupColumn(!openPopupColumn)
     }
 
     const updateColumnName = (index) => {
-        if (!newColumnName.trim()) {
+        if (!newColumn.trim()) {
             alert("Column name cannot be empty.");
             return;
         }
 
         const oldColumnName = columns[index];
         const updatedColumns = [...columns];
-        updatedColumns[index] = newColumnName;
+        updatedColumns[index] = newColumn;
         setColumns(updatedColumns);
 
         const updatedData = data.map(row => {
-            row[newColumnName.toLowerCase()] = row[oldColumnName.toLowerCase()];
+            row[newColumn.toLowerCase()] = row[oldColumnName.toLowerCase()];
             delete row[oldColumnName.toLowerCase()];
             return row;
         });
 
         setData(updatedData);
-        setNewColumnName('');
-        setSelectedColumnIndex(null);
+        setNewColumn('');
     };
 
     const updateColumnWidth = (index, width) => {
         const updatedWidths = [...columnWidths];
         updatedWidths[index] = `${width}px`;
         setColumnWidths(updatedWidths);
-        setSelectedColumnForWidth(null);
-        setNewColumnWidth('200');
     };
 
     const updateColumnBackgroundColor = (index, backgroundColor) => {
         const updatedBackgroundColors = [...columnBackgroundColors];
         updatedBackgroundColors[index] = backgroundColor;
         setColumnBackgroundColors(updatedBackgroundColors);
-        // setSelectedColumnForBackgroundColor(null);
-        // setNewColumnBackgroundColor('white');
     };
 
     const deleteColumn = () => {
@@ -230,39 +225,56 @@ const Table = () => {
             return;
         }
 
-        if (columnToDelete !== null) {
+        if (selectedColumnIndex !== null) {
             // Cập nhật cột sau khi xóa cột được chọn
-            const updatedColumns = columns.filter((_, index) => index !== columnToDelete);
+            const updatedColumns = columns.filter((_, index) => index !== selectedColumnIndex);
             setColumns(updatedColumns);
 
             // Tìm tên cột cần xóa và sử dụng để loại bỏ thuộc tính tương ứng từ mỗi đối tượng trong data
-            const columnName = columns[columnToDelete].toLowerCase();
+            const columnName = columns[selectedColumnIndex].toLowerCase();
             const updatedData = data.map(item => {
                 const { [columnName]: _, ...rest } = item;
                 return rest;
             });
             setData(updatedData);
 
+            const updatedBackgroundColors = columnBackgroundColors.filter((_, index) => index !== selectedColumnIndex);
+            setColumnBackgroundColors(updatedBackgroundColors);
+            const updatedColumnWidths = columnWidths.filter((_, index) => index !== selectedColumnIndex);
+            setColumnWidths(updatedColumnWidths);
+
+
             // Đặt lại columnToDelete và đóng popup
-            setColumnToDelete(null);
-            setIsPopupOpen(false);
+            setSelectedColumnIndex(null);
+            setOpenPopupColumn(false)
 
             // Để xem dữ liệu mới trong console sau khi cập nhật
             setTimeout(() => console.log(updatedData), 0);
         }
     };
 
+    const increaseFontSize = () => {
+        setFontSize(prevSize => prevSize + 2);
+    };
+
+    const decreaseFontSize = () => {
+        setFontSize(prevSize => Math.max(prevSize - 2, 8));
+    };
+    const handleFontSizeChange = (e) => {
+        const newFontSize = Math.max(8, Number(e.target.value) || 0);
+        setFontSize(newFontSize);
+    };
 
     return (
         <>
             <div className="table_gear" onClick={() => setIsPopupOpen(true)}>⚙️</div>
             <div className="table">
-
-                <div className={`table_container ${typeShow ? 'vertical' : ''}`}>
+                <div className={`table_container ${typeShow ? 'vertical' : ''}`} style={{ fontFamily: selectedFont, fontSize: `${fontSize}px` }}>
                     <div className={`table_container_header ${typeShow ? 'vertical' : ''}`} >
                         {columns.map((value, key) => (
-                            <div className="table_container_header_cell" onClick={() => updateColumnBackgroundColor(key, 'green')} key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>{value}
-                                <div className="table_container_header_cell_icon" onClick={handlPopupColumn}><MdOutlineMoreVert /></div>
+                            <div className="table_container_header_cell" key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>
+                                {value}
+
                             </div>
                         ))}
                         <div className="table_container_header_cell" style={{ width: typeShow ? '200px' : '30px' }}></div>
@@ -325,7 +337,7 @@ const Table = () => {
                                 </div>
                                 <div className="table_popup_main">
                                     <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(0)}>Table<IoIosArrowDown /></div>
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(0)}><h4>Table</h4><IoIosArrowDown /></div>
                                         <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(0) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
                                                 Change direction:
@@ -341,10 +353,49 @@ const Table = () => {
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+
+                                                <label style={{ marginRight: '10px' }}>Adjust Font Size:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseFontSize} style={{ margin: '0 10px', width:"40px"}}>-</button>
+                                                    <input
+                                                        value={fontSize}
+                                                        onChange={handleFontSizeChange}
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
+
+                                                    <button onClick={increaseFontSize} style={{ margin: '0 0 0 10px', width:"40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                Change font:
+                                                <div class="table_popup_main_dropdown_content_item_change">
+                                                    <select
+                                                        class="table_popup_main_dropdown_content_item_change_select"
+                                                        onChange={(e) => setSelectedFont(e.target.value)}
+                                                        value={selectedFont}
+                                                    >
+                                                        <option value="Roboto">Roboto</option>
+                                                        <option value="Arial">Arial</option>
+                                                        <option value="Open Sans">Open Sans</option>
+                                                        <option value="Verdana">Verdana</option>
+                                                        <option value="Georgia">Georgia</option>
+                                                        <option value="Tahoma">Tahoma</option>
+                                                        <option value="Poppins">Poppins</option>
+                                                        <option value="Merriweather">Merriweather</option>
+                                                        <option value="Montserrat">Montserrat</option>
+
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
+
                                         </div>
                                     </div>
                                     <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(1)}>Row<IoIosArrowDown /></div>
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(1)}><h4>Row</h4><IoIosArrowDown /></div>
                                         <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(1) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item" style={{ gap: '10px' }}>
                                                 <label>
@@ -357,23 +408,161 @@ const Table = () => {
                                                     value={addCount}
                                                     onChange={(e) => setAddCount(Number(e.target.value))}
                                                 />
-                                                <button className="table_popup_add" onClick={addRowData}>Add    </button>
+                                                <button className="table_popup_add" onClick={addRowData}>Add</button>
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item">
-                                                Chọn hàng để xóa:
-                                                <select onChange={(e) => setSelectedRow(parseInt(e.target.value))} value={selectedRow || ''}>
-                                                    <option value="">Chọn hàng</option>
-                                                    {data.map((row, index) => (
-                                                        <option key={row.id} value={index}>
-                                                            {index + 1}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                                Choce row Del
+                                                <div class="table_popup_main_dropdown_content_item_change">
+                                                    <select class="table_popup_main_dropdown_content_item_change_select" onChange={(e) => setSelectedRow(parseInt(e.target.value))} value={selectedRow || ''}>
+                                                        <option value="">Chọn hàng</option>
+                                                        {data.map((row, index) => (
+                                                            <option key={row.id} value={index}>
+                                                                {index + 1}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                                 {selectedRow !== null && (
                                                     <button onClick={() => deleteData(selectedRow)}>Delete</button>
                                                 )}
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="table_popup_main_dropdown" >
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(2)}><h4>Column</h4><IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(2) ? 'active' : ''}`} >
+                                            <div className="table_popup_main_dropdown_content_item">
+                                                <label>
+                                                    New column name:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={newColumn}
+                                                    onChange={(e) => setNewColumn(e.target.value)}
+                                                />
+                                                <button className="table_popup_add" onClick={addColumn}>Add</button>
+                                            </div>
 
+                                            <div className="table_popup_main_dropdown">
+                                                <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(4)}><h5>Change name Column</h5><IoIosArrowDown /></div>
+                                                <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(4) ? 'active' : ''}`}>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Select Column
+                                                        <select
+                                                            value={selectedColumnIndex}
+                                                            onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
+                                                            className="table_popup_main_dropdown_content_item_select"
+                                                        >
+                                                            <option value={null}>-- Chọn cột --</option>
+                                                            {columns.map((col, index) => (
+                                                                <option key={index} value={index}>{col}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        {selectedColumnIndex !== null && (
+                                                            <>
+                                                                New name for {columns[selectedColumnIndex]}:
+                                                                <input
+                                                                    type="text"
+                                                                    value={newColumn}
+                                                                    onChange={(e) => setNewColumn(e.target.value)}
+                                                                />
+                                                                <button className="table_popup_update" onClick={() => updateColumnName(selectedColumnIndex)}>Save</button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="table_popup_main_dropdown">
+                                                <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(5)}><h5>Size Adjustment</h5><IoIosArrowDown /></div>
+                                                <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(5) ? 'active' : ''}`}>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Select Column
+                                                        <select
+                                                            value={selectedColumnIndex}
+                                                            onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
+                                                            className="table_popup_main_dropdown_content_item_select"
+                                                        >
+                                                            <option value={null}>-- Chọn cột --</option>
+                                                            {columns.map((col, index) => (
+                                                                <option key={index} value={index}>{col}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        {selectedColumnIndex !== null && (
+                                                            <>
+                                                                Width for {columns[selectedColumnIndex]}:
+                                                                <input
+                                                                    type="number"
+                                                                    value={newColumnWidth}
+                                                                    onChange={(e) => setNewColumnWidth(e.target.value)}
+                                                                />
+                                                                <button onClick={() => updateColumnWidth(selectedColumnIndex, newColumnWidth)}>Save</button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="table_popup_main_dropdown">
+                                                <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(6)}><h5>Del Column</h5><IoIosArrowDown /></div>
+                                                <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(6) ? 'active' : ''}`}>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Select Column
+                                                        <select
+                                                            value={selectedColumnIndex}
+                                                            onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
+                                                            className="table_popup_main_dropdown_content_item_select"
+                                                        >
+                                                            <option value={null}>-- Chọn cột --</option>
+                                                            {columns.map((col, index) => (
+                                                                <option key={index} value={index}>{col}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Xóa cột:
+                                                        <span style={{ marginLeft: '10px' }}>{columns[selectedColumnIndex]}</span>
+                                                        {selectedColumnIndex !== null && (
+                                                            <button onClick={deleteColumn}>Delete</button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="table_popup_main_dropdown">
+                                                <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(7)}><h5>Change color column</h5><IoIosArrowDown /></div>
+                                                <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(7) ? 'active' : ''}`} >
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Select Column
+                                                        <select
+                                                            value={selectedColumnIndex}
+                                                            onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
+                                                            className="table_popup_main_dropdown_content_item_select"
+                                                        >
+                                                            <option value={null}>-- Chọn cột --</option>
+                                                            {columns.map((col, index) => (
+                                                                <option key={index} value={index}>{col}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        <SketchPicker
+                                                            color={selectedColor}
+                                                            onChange={(color) => setSelectedColor(color.hex)}
+                                                        />
+                                                        <button onClick={() => {
+                                                            updateColumnBackgroundColor(selectedColumnIndex, selectedColor);
+                                                            setOpenPopupColumn(false); // Đóng popup sau khi xác nhận
+                                                        }}>
+                                                            Xác Nhận
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                         </div>
                                     </div>
@@ -395,104 +584,24 @@ const Table = () => {
                                     </div>
                                 </div>
                                 <div className="table_popup_main">
-                                    <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(0)}>Add Column<IoIosArrowDown /></div>
-                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(0) ? 'active' : ''}`}>
-                                            <div className="table_popup_main_dropdown_content_item">
-                                                <label>
-                                                    New column name:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={newColumn}
-                                                    onChange={(e) => setNewColumn(e.target.value)}
-                                                />
-                                                <button className="table_popup_add" onClick={addColumn}>Add</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(1)}>Change name Column<IoIosArrowDown /></div>
-                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(1) ? 'active' : ''}`}>
-                                            <div className="table_popup_main_dropdown_content_item">
-                                                Chọn cột đổi tên:
-                                                <select
-                                                    value={selectedColumnIndex}
-                                                    onChange={(e) => setSelectedColumnIndex(Number(e.target.value))}
-                                                    className="table_popup_main_dropdown_content_item_select"
-                                                >
-                                                    <option value={null}>-- Chọn cột --</option>
-                                                    {columns.map((col, index) => (
-                                                        <option key={index} value={index}>{col}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="table_popup_main_dropdown_content_item">
-                                                {selectedColumnIndex !== null && (
-                                                    <>
-                                                        New name for {columns[selectedColumnIndex]}:
-                                                        <input
-                                                            type="text"
-                                                            value={newColumnName}
-                                                            onChange={(e) => setNewColumnName(e.target.value)}
-                                                        />
-                                                        <button className="table_popup_update" onClick={() => updateColumnName(selectedColumnIndex)}>Save</button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(3)}>Size Adjustment<IoIosArrowDown /></div>
-                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(3) ? 'active' : ''}`}>
-                                            <div className="table_popup_main_dropdown_content_item">
-                                                Chọn cột để chỉnh kích thước:
-                                                <select
-                                                    value={selectedColumnForWidth}
-                                                    onChange={(e) => setSelectedColumnForWidth(Number(e.target.value))}
-                                                    className="table_popup_main_dropdown_content_item_select"
-                                                >
-                                                    <option value={null}>-- Chọn cột --</option>
-                                                    {columns.map((col, index) => (
-                                                        <option key={index} value={index}>{col}</option>
-                                                    ))}
-                                                </select>
 
-                                            </div>
-                                            <div className="table_popup_main_dropdown_content_item">
-                                                {selectedColumnForWidth !== null && (
-                                                    <>
-                                                        Width for {columns[selectedColumnForWidth]}:
-                                                        <input
-                                                            type="number"
-                                                            value={newColumnWidth}
-                                                            onChange={(e) => setNewColumnWidth(e.target.value)}
-                                                        />
-                                                        px
-                                                        <button onClick={() => updateColumnWidth(selectedColumnForWidth, newColumnWidth)}>Save</button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+
+
                                     <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(4)}>Del Column<IoIosArrowDown /></div>
-                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(4) ? 'active' : ''}`}>
+                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(5)}><h3>Change color column</h3><IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(5) ? 'active' : ''}`}>
                                             <div className="table_popup_main_dropdown_content_item">
-                                                Chọn cột để xóa:
-                                                <select
-                                                    value={columnToDelete}
-                                                    onChange={(e) => setColumnToDelete(Number(e.target.value))}
-                                                    className="table_popup_main_dropdown_content_item_select"
-                                                >
-                                                    <option value={null}>-- Chọn cột --</option>
-                                                    {columns.map((col, index) => (
-                                                        <option key={index} value={index}>{col}</option>
-                                                    ))}
-                                                </select>
-                                                {columnToDelete !== null && (
-                                                    <button onClick={deleteColumn}>Delete</button>
-                                                )}
+                                                <SketchPicker
+                                                    styles={{ height: "300px" }}
+                                                    color={selectedColor}
+                                                    onChange={(color) => setSelectedColor(color.hex)}
+                                                />
+                                                <button onClick={() => {
+                                                    updateColumnBackgroundColor(selectedColumnIndex, selectedColor);
+                                                    setOpenPopupColumn(false); // Đóng popup sau khi xác nhận
+                                                }}>
+                                                    Xác Nhận
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
