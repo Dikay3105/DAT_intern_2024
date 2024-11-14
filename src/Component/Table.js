@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './Table.scss';
 import { IoMdClose } from 'react-icons/io';
 import { IoIosArrowDown } from "react-icons/io";
@@ -15,7 +15,6 @@ const Table = () => {
         { id: 2, no: 2, name: 'Bob', age: 30, country: 'UK' },
         { id: 3, no: 3, name: 'Charlie', age: 28, country: 'Canada' },
     ]);
-    const [typeShow, setTypeShow] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isNearBottom, setIsNearBottom] = useState(false);
     const [openPopupColumn, setOpenPopupColumn] = useState(false);
@@ -25,16 +24,32 @@ const Table = () => {
     const [columns, setColumns] = useState(["NO", "Name", "Age", "Country"]);
     const [newColumn, setNewColumn] = useState('');
     const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
-    const [columnWidths, setColumnWidths] = useState(columns.map(() => '200px')); // Kích thước mặc định
+    const [columnWidths, setColumnWidths] = useState(columns.map(() => '')); // Kích thước mặc định
     const [columnBackgroundColors, setColumnBackgroundColors] = useState(columns.map(() => ''));
     const [newColumnWidth, setNewColumnWidth] = useState('200');
     const [openDropdowns, setOpenDropdowns] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
-    const [selectedColor, setSelectedColor] = useState('#FFFFFF'); // Màu mặc định
+    const [selectedColor, setSelectedColor] = useState('#fffff'); // Màu mặc định
     const [selectedFont, setSelectedFont] = useState('Roboto');
     const [fontSize, setFontSize] = useState(16); // Kích thước mặc định
-    const [selectedColorOddRow, setSelectedColorOddRow] = useState('#FFFFFF');
-    const [selectedColorEvenRow, setSelectedColorEvenRow] = useState('rgba(0, 0, 255, 0.336)');
+    const [selectedColorOddRow, setSelectedColorOddRow] = useState('rgb(0,0,0,0)');
+    const [selectedColorEvenRow, setSelectedColorEvenRow] = useState('rgb(0,0,0,0)');
+    const [tableSetting, setTableSetting] = useState({
+        width: 800,
+        height: 600,
+        backgroundColor: '#ffffff',
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#ccc',
+        inlineBorderWidth: 2,
+        inlineBorderStyle: 'solid',
+        inlineBorderColor: '#ccc',
+        headerColor: '#f2f2f2',
+    });
+    const heightInputRef = useRef(tableSetting.height);
+    const widthInputRef = useRef(tableSetting.width);
+    const bordeWidthInputRef = useRef(tableSetting.borderWidth);
+    const inlineBordeWidthInputRef = useRef(tableSetting.inlineBorderWidth);
 
 
     const handleMouseMove = (index, e) => {
@@ -258,6 +273,8 @@ const Table = () => {
         }
     };
 
+
+    //------------Change font size function
     const increaseFontSize = () => {
         setFontSize(prevSize => prevSize + 2);
     };
@@ -269,46 +286,201 @@ const Table = () => {
         const newFontSize = Number(e.target.value) || 0;
         setFontSize(newFontSize);
     };
+    //--------------------------------------
+
+    //------------Change width function
+    const increaseWidth = () => {
+        setTableSetting(prevSetting => {
+            const newWidth = prevSetting.width + 2;
+            widthInputRef.current = newWidth;
+            return { ...prevSetting, width: newWidth };
+        });
+    };
+
+    const decreaseWidth = () => {
+        setTableSetting(prevSetting => {
+            const newWidth = Math.max(prevSetting.width - 2, 800); // Giới hạn tối thiểu là 8
+            widthInputRef.current = newWidth;
+            return { ...prevSetting, width: newWidth };
+        });
+    };
+
+    const handleWidthKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            const newWidth = Number(widthInputRef.current) || 0;
+            setTableSetting(prevSetting => ({
+                ...prevSetting,
+                width: newWidth
+            }));
+        }
+    };
+
+    const handleWidthInputChange = (e) => {
+        widthInputRef.current = e.target.value;
+    };
+
+    //--------------------------------------
+
+    //------------Change height function
+    const increaseHeight = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            height: prevSetting.height + 2
+        }));
+        heightInputRef.current = tableSetting.height + 2;
+    };
+
+    const decreaseHeight = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            height: Math.max(prevSetting.height - 2, 600)
+        }));
+        heightInputRef.current = tableSetting.height - 2;
+    };
+
+    const handleHeightKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            const newHeight = Number(heightInputRef.current) || 0;
+            setTableSetting(prevSetting => ({
+                ...prevSetting,
+                height: newHeight
+            }));
+        }
+    };
+
+    const handleHeightInputChange = (e) => {
+        heightInputRef.current = e.target.value;
+    };
+    //--------------------------------------
+
+    //------------Change outlineborder width function
+    const increaseBorderWidth = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            borderWidth: prevSetting.borderWidth + 1
+        }));
+        bordeWidthInputRef.current = tableSetting.borderWidth + 1;
+    };
+
+    const decreaseBorderWidth = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            borderWidth: Math.max(prevSetting.borderWidth - 1, 1)
+        }));
+        bordeWidthInputRef.current = tableSetting.borderWidth - 1;
+    };
+
+    const handleBorderWidthKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            const newHeight = Number(bordeWidthInputRef.current) || 0;
+            setTableSetting(prevSetting => ({
+                ...prevSetting,
+                borderWidth: newHeight
+            }));
+        }
+    };
+
+    const handleBorderWidthInputChange = (e) => {
+        bordeWidthInputRef.current = e.target.value;
+    };
+    //--------------------------------------
+
+    //------------Change inlineborder width function
+    const increaseInlineBorderWidth = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            inlineBorderWidth: prevSetting.inlineBorderWidth + 1
+        }));
+        inlineBordeWidthInputRef.current = tableSetting.inlineBorderWidth + 1;
+    };
+
+    const decreaseInlineBorderWidth = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            inlineBorderWidth: Math.max(prevSetting.inlineBorderWidth - 1, 1)
+        }));
+        inlineBordeWidthInputRef.current = tableSetting.inlineBorderWidth - 1;
+    };
+
+    const handleInlineBorderWidthKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            const newHeight = Number(inlineBordeWidthInputRef.current) || 0;
+            setTableSetting(prevSetting => ({
+                ...prevSetting,
+                inlineBorderWidth: newHeight
+            }));
+        }
+    };
+
+    const handleInlineBorderWidthInputChange = (e) => {
+        inlineBordeWidthInputRef.current = e.target.value;
+    };
+    //--------------------------------------
 
     return (
         <>
+            <button onClick={() => console.log(data)}>Check</button>
             <div className="table_gear" onClick={() => setIsPopupOpen(true)}>⚙️</div>
             <div className="table">
-                <div className={`table_container ${typeShow ? 'vertical' : ''}`} style={{ fontFamily: selectedFont, fontSize: `${fontSize}px` }}>
-                    <div className={`table_container_header ${typeShow ? 'vertical' : ''}`} >
+                <div className={`table_container`}
+                    style={{
+                        fontFamily: selectedFont,
+                        fontSize: `${fontSize}px`,
+                        width: `${tableSetting.width}px`,
+                        height: `${tableSetting.height}px`,
+                        borderWidth: `${tableSetting.borderWidth}px`,
+                        borderColor: tableSetting.borderColor,
+                        borderStyle: tableSetting.borderStyle,
+                        backgroundColor: tableSetting.backgroundColor
+                    }}>
+                    <div className={`table_container_header`} >
                         {columns.map((value, key) => (
-                            <div className="table_container_header_cell" key={key} style={{ width: columnWidths[key], backgroundColor: columnBackgroundColors[key] }}>
+                            <div className="table_container_header_cell" key={key}
+                                style={{
+                                    width: columnWidths[key],
+                                    flex: columnWidths[key] ? 'none' : '1 1',
+                                    backgroundColor: columnBackgroundColors[key],
+                                    borderBottomWidth: `${tableSetting.inlineBorderWidth}px`,
+                                    borderBottomColor: tableSetting.inlineBorderColor,
+                                    borderBottomStyle: tableSetting.inlineBorderStyle,
+                                    backgroundColor: tableSetting.headerColor
+                                }}
+                            >
                                 {value}
 
                             </div>
                         ))}
-                        <div className="table_container_header_cell" style={{ width: typeShow ? '200px' : '30px' }}></div>
+                        <div className="table_container_header_cell"
+                            style={{
+                                width: '30px',
+                            }}>
+
+                        </div>
                     </div>
                     {data.map((person, index) => (
                         <div
-                            className={`table_container_row ${typeShow ? 'vertical' : ''} ${isNearBottom === index ? 'show-border' : ''}`}
+                            className={`table_container_row vertical} ${isNearBottom === index ? 'show-border' : ''}`}
                             style={{
                                 backgroundColor:
                                     (index + 1) % 2 === 0
                                         ? selectedColorEvenRow
                                         : selectedColorOddRow
-
                             }}
                             key={index}
                             onClick={(e) => handleClick(index, e)}  // Gọi handleClick khi click
                             onMouseMove={(e) => handleMouseMove(index, e)}  // Vẫn giữ sự kiện onMouseMove
                             onMouseLeave={() => setIsNearBottom(null)} // Reset khi mouse rời
                         >
-                            {/* <div className="table_container_row_cell" style={{ width: columnWidths[0], backgroundColor: columnBackgroundColors[0] }}>
-                                {index + 1}
-                            </div> */}
-
                             {columns.map((column, colIndex) => (
                                 <div
-                                    className={`table_container_row_cell ${typeShow ? 'vertical' : ''}`}
+                                    className={`table_container_row_cell`}
                                     style={{
                                         width: columnWidths[colIndex],
-                                        backgroundColor: columnBackgroundColors[colIndex]
+                                        flex: columnWidths[colIndex] ? 'none' : '1 1',
+                                        backgroundColor: columnBackgroundColors[colIndex],
+                                        borderBottomWidth: index === data.length - 1 ? '0px' : `${tableSetting.inlineBorderWidth}px`, // Kiểm tra nếu là dòng cuối
+                                        borderBottomColor: tableSetting.inlineBorderColor,
+                                        borderBottomStyle: tableSetting.inlineBorderStyle,
                                     }}
                                     onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
                                     key={colIndex}
@@ -338,6 +510,7 @@ const Table = () => {
                         </div>
                     ))}
 
+
                     <Tooltip id="table_tooltip" />
                 </div>
                 {
@@ -347,15 +520,15 @@ const Table = () => {
                             <div className="table_popup">
                                 <div className="table_popup_title">
                                     <h3>Settings</h3>
-                                    <div onClick={() => setIsPopupOpen(false)} style={{ cursor: "pointer" }}>
-                                        <IoMdClose />
+                                    <div className='table_popup_title_close' onClick={() => setIsPopupOpen(false)} style={{ cursor: "pointer" }}>
+                                        <IoMdClose size={"20px"} />
                                     </div>
                                 </div>
                                 <div className="table_popup_main">
                                     <div className="table_popup_main_dropdown">
-                                        <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(0)}><h4>Table</h4><IoIosArrowDown /></div>
+                                        <div className={`table_popup_main_dropdown_title ${openDropdowns.includes(0) ? 'active' : ''}`} onClick={() => toggleDropdown(0)}><h4>Table</h4><IoIosArrowDown /></div>
                                         <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(0) ? 'active' : ''}`}>
-                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                            {/* <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
                                                 Change direction:
                                                 <div className="table_popup_main_dropdown_content_item_change">
                                                     <select
@@ -368,24 +541,67 @@ const Table = () => {
                                                         <option value="option1">Horitzontal</option>
                                                     </select>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
-
-                                                <label style={{ marginRight: '10px' }}>Adjust Font Size:</label>
+                                                <label style={{ marginRight: '10px' }}>Width:</label>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <button onClick={decreaseFontSize} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <button onClick={decreaseWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
                                                     <input
-                                                        value={fontSize}
-                                                        onChange={handleFontSizeChange}
+                                                        type="number"
+                                                        value={widthInputRef.current} // Hiển thị giá trị width hiện tại
+                                                        defaultValue={tableSetting.width}
+                                                        onChange={handleWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
                                                         style={{ width: '80px', textAlign: 'center' }}
                                                         min="8"
                                                     />
-
-                                                    <button onClick={increaseFontSize} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                    <button onClick={increaseWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
                                                 </div>
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
-                                                Change font:
+                                                <label style={{ marginRight: '10px' }}>Height:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseHeight} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <input
+                                                        type="number"
+                                                        value={heightInputRef.current}// Hiển thị giá trị width hiện tại
+                                                        defaultValue={tableSetting.height}
+                                                        onChange={handleHeightInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleHeightKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
+                                                    <button onClick={increaseHeight} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Background color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.backgroundColor}
+                                                    onChange={(color) => {
+                                                        setTableSetting(prevSetting => ({
+                                                            ...prevSetting,
+                                                            backgroundColor: color.hex
+                                                        }));
+                                                    }}
+                                                    placement="right"
+                                                />
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Header color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.headerColor}
+                                                    onChange={(color) => {
+                                                        setTableSetting(prevSetting => ({
+                                                            ...prevSetting,
+                                                            headerColor: color.hex
+                                                        }));
+                                                    }}
+                                                    placement="right"
+                                                />
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                Font:
                                                 <div className="table_popup_main_dropdown_content_item_change">
                                                     <select
                                                         className="table_popup_main_dropdown_content_item_change_select"
@@ -405,9 +621,126 @@ const Table = () => {
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label style={{ marginRight: '10px' }}>Font size:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseFontSize} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <input
+                                                        value={fontSize}
+                                                        onChange={handleFontSizeChange}
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
 
-
-
+                                                    <button onClick={increaseFontSize} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label style={{ marginRight: '10px' }}>Outline border width:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseBorderWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <input
+                                                        type="number"
+                                                        value={bordeWidthInputRef.current}// Hiển thị giá trị width hiện tại
+                                                        defaultValue={tableSetting.borderWidth}
+                                                        onChange={handleBorderWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleBorderWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
+                                                    <button onClick={increaseBorderWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label style={{ marginRight: '10px' }}>Inline border width:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseInlineBorderWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <input
+                                                        type="number"
+                                                        value={inlineBordeWidthInputRef.current}// Hiển thị giá trị width hiện tại
+                                                        defaultValue={tableSetting.inlineBorderWidth}
+                                                        onChange={handleInlineBorderWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleInlineBorderWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
+                                                    <button onClick={increaseInlineBorderWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                Outline border style:
+                                                <div className="table_popup_main_dropdown_content_item_change">
+                                                    <select
+                                                        className="table_popup_main_dropdown_content_item_change_select"
+                                                        onChange={(e) => {
+                                                            setTableSetting(prevSetting => ({
+                                                                ...prevSetting,
+                                                                borderStyle: e.target.value
+                                                            }));
+                                                        }}
+                                                        value={tableSetting.borderStyle}
+                                                    >
+                                                        <option value="solid">Solid</option>
+                                                        <option value="dashed">Dashed</option>
+                                                        <option value="dotted">Dotted</option>
+                                                        <option value="double">Double</option>
+                                                        <option value="groove">Groove</option>
+                                                        <option value="ridge">Ridge</option>
+                                                        <option value="inset">Inset</option>
+                                                        <option value="outset">Outset</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                Inline border style:
+                                                <div className="table_popup_main_dropdown_content_item_change">
+                                                    <select
+                                                        className="table_popup_main_dropdown_content_item_change_select"
+                                                        onChange={(e) => {
+                                                            setTableSetting(prevSetting => ({
+                                                                ...prevSetting,
+                                                                inlineBorderStyle: e.target.value
+                                                            }));
+                                                        }}
+                                                        value={tableSetting.inlineBorderStyle}
+                                                    >
+                                                        <option value="solid">Solid</option>
+                                                        <option value="dashed">Dashed</option>
+                                                        <option value="dotted">Dotted</option>
+                                                        <option value="double">Double</option>
+                                                        <option value="groove">Groove</option>
+                                                        <option value="ridge">Ridge</option>
+                                                        <option value="inset">Inset</option>
+                                                        <option value="outset">Outset</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Outline border color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.borderColor}
+                                                    onChange={(color) => {
+                                                        setTableSetting(prevSetting => ({
+                                                            ...prevSetting,
+                                                            borderColor: color.hex
+                                                        }));
+                                                    }}
+                                                    placement="right"
+                                                />
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Inline border color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.inlineBorderColor}
+                                                    onChange={(color) => {
+                                                        setTableSetting(prevSetting => ({
+                                                            ...prevSetting,
+                                                            inlineBorderColororderColor: color.hex
+                                                        }));
+                                                    }}
+                                                    placement="right"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="table_popup_main_dropdown">
