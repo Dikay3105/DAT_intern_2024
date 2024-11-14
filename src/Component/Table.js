@@ -5,6 +5,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Tooltip } from 'react-tooltip'
 import InputColor from 'react-input-color';
 // import { SketchPicker } from 'react-color';
+import { Rnd } from "react-rnd";
 
 const Table = () => {
     const [data, setData] = useState([
@@ -47,8 +48,8 @@ const Table = () => {
         headerColor: '#f2f2f2',
         color: '#000000',
     });
-    const heightInputRef = useRef(tableSetting.height);
-    const widthInputRef = useRef(tableSetting.width);
+    const [heightInputValue, setHeightInputValue] = useState(tableSetting.height);
+    const [widthInputValue, setWidthInputValue] = useState(tableSetting.width);
     const bordeWidthInputRef = useRef(tableSetting.borderWidth);
     const inlineBordeWidthInputRef = useRef(tableSetting.inlineBorderWidth);
 
@@ -238,7 +239,7 @@ const Table = () => {
         updatedHeights[rowIndex] = `${height}px`;
         setRowHeights(updatedHeights);
     };
-    
+
 
     const updateColumnBackgroundColor = (index, backgroundColor) => {
         const updatedBackgroundColors = [...columnBackgroundColors];
@@ -298,33 +299,33 @@ const Table = () => {
 
     //------------Change width function
     const increaseWidth = () => {
-        setTableSetting(prevSetting => {
-            const newWidth = prevSetting.width + 2;
-            widthInputRef.current = newWidth;
-            return { ...prevSetting, width: newWidth };
-        });
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            width: prevSetting.width + 2
+        }));
+        setWidthInputValue(prevWidth => prevWidth + 2);
     };
 
     const decreaseWidth = () => {
-        setTableSetting(prevSetting => {
-            const newWidth = Math.max(prevSetting.width - 2, 800); // Giới hạn tối thiểu là 8
-            widthInputRef.current = newWidth;
-            return { ...prevSetting, width: newWidth };
-        });
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            width: Math.max(prevSetting.width - 2, 200)
+        }));
+        setWidthInputValue(prevWidth => Math.max(prevWidth - 2, 200));
+    };
+
+    const handleWidthInputChange = (e) => {
+        setWidthInputValue(Number(e.target.value));
     };
 
     const handleWidthKeyPress = (e) => {
         if (e.key === 'Enter') {
-            const newWidth = Number(widthInputRef.current) || 0;
+            const newWidth = Number(widthInputValue) || 200;
             setTableSetting(prevSetting => ({
                 ...prevSetting,
                 width: newWidth
             }));
         }
-    };
-
-    const handleWidthInputChange = (e) => {
-        widthInputRef.current = e.target.value;
     };
 
     //--------------------------------------
@@ -335,7 +336,7 @@ const Table = () => {
             ...prevSetting,
             height: prevSetting.height + 2
         }));
-        heightInputRef.current = tableSetting.height + 2;
+        setHeightInputValue(prevHeight => prevHeight + 2); // Cập nhật input
     };
 
     const decreaseHeight = () => {
@@ -343,21 +344,21 @@ const Table = () => {
             ...prevSetting,
             height: Math.max(prevSetting.height - 2, 600)
         }));
-        heightInputRef.current = tableSetting.height - 2;
+        setHeightInputValue(prevHeight => Math.max(prevHeight - 2, 600)); // Cập nhật input
+    };
+
+    const handleHeightInputChange = (e) => {
+        setHeightInputValue(Number(e.target.value)); // Cập nhật giá trị tạm thời khi nhập
     };
 
     const handleHeightKeyPress = (e) => {
         if (e.key === 'Enter') {
-            const newHeight = Number(heightInputRef.current) || 0;
+            const newHeight = Number(heightInputValue) || 600; // Lấy giá trị hiện tại trong input
             setTableSetting(prevSetting => ({
                 ...prevSetting,
                 height: newHeight
             }));
         }
-    };
-
-    const handleHeightInputChange = (e) => {
-        heightInputRef.current = e.target.value;
     };
     //--------------------------------------
 
@@ -430,100 +431,116 @@ const Table = () => {
             <button onClick={() => console.log(data)}>Check</button>
             <div className="table_gear" onClick={() => setIsPopupOpen(true)}>⚙️</div>
             <div className="table">
-                <div className={`table_container`}
+                <Rnd
                     style={{
                         fontFamily: selectedFont,
                         fontSize: `${fontSize}px`,
-                        color: tableSetting.color,
-                        width: `${tableSetting.width}px`,
-                        height: `${tableSetting.height}px`,
                         borderWidth: `${tableSetting.borderWidth}px`,
                         borderColor: tableSetting.borderColor,
                         borderStyle: tableSetting.borderStyle,
-                        backgroundColor: tableSetting.backgroundColor
-                    }}>
-                    <div className={`table_container_header`} >
-                        {columns.map((value, key) => (
-                            <div className="table_container_header_cell" key={key}
-                                style={{
-                                    width: columnWidths[key],
-                                    flex: columnWidths[key] ? 'none' : '1 1',
-                                    backgroundColor: columnBackgroundColors[key],
-                                    borderBottomWidth: `${tableSetting.inlineBorderWidth}px`,
-                                    borderBottomColor: tableSetting.inlineBorderColor,
-                                    borderBottomStyle: tableSetting.inlineBorderStyle,
-                                    backgroundColor: tableSetting.headerColor
-                                }}
-                            >
-                                {value}
+                        backgroundColor: tableSetting.backgroundColor,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    }}
+                    default={{
+                        x: 0,
+                        y: 0,
+                        width: tableSetting.width,
+                        height: tableSetting.height
+                    }}
+                    onResizeStop={() => {
 
-                            </div>
-                        ))}
-                        {/* <div className="table_container_header_cell"
+                    }}
+                >
+                    <div className={`table_container`}
+                        style={{
+                            height: '100%',
+                            width: '100%'
+                        }}>
+                        <div className={`table_container_header`} >
+                            {columns.map((value, key) => (
+                                <div className="table_container_header_cell" key={key}
+                                    style={{
+                                        width: columnWidths[key],
+                                        flex: columnWidths[key] ? 'none' : '1 1',
+                                        backgroundColor: columnBackgroundColors[key],
+                                        borderBottomWidth: `${tableSetting.inlineBorderWidth}px`,
+                                        borderBottomColor: tableSetting.inlineBorderColor,
+                                        borderBottomStyle: tableSetting.inlineBorderStyle,
+                                        backgroundColor: tableSetting.headerColor
+                                    }}
+                                >
+                                    {value}
+
+                                </div>
+                            ))}
+                            {/* <div className="table_container_header_cell"
                             style={{
                                 width: '30px',
                             }}>
 
                         </div> */}
-                    </div>
-                    {data.map((person, index) => (
-                        <div
-                            className={`table_container_row vertical} ${isNearBottom === index ? 'show-border' : ''}`}
-                            style={{
-                                backgroundColor:
-                                    (index + 1) % 2 === 0
-                                        ? selectedColorEvenRow
-                                        : selectedColorOddRow,
-                                height: rowHeights[index],
-                                flex: rowHeights[index] ? 'none' : '1 1',
-                            }}
-                            key={index}
-                            onClick={(e) => handleClick(index, e)}  // Gọi handleClick khi click
-                            onMouseMove={(e) => handleMouseMove(index, e)}  // Vẫn giữ sự kiện onMouseMove
-                            onMouseLeave={() => setIsNearBottom(null)} // Reset khi mouse rời
-                        >
-                            {columns.map((column, colIndex) => (
-                                <div
-                                    className={`table_container_row_cell`}
-                                    style={{
-                                        width: columnWidths[colIndex],
-                                        flex: columnWidths[colIndex] ? 'none' : '1 1',
-                                        backgroundColor: columnBackgroundColors[colIndex],
-                                        borderBottomWidth: index === data.length - 1 ? '0px' : `${tableSetting.inlineBorderWidth}px`, // Kiểm tra nếu là dòng cuối
-                                        borderBottomColor: tableSetting.inlineBorderColor,
-                                        borderBottomStyle: tableSetting.inlineBorderStyle,
-                                    }}
-                                    onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
-                                    key={colIndex}
-                                    data-tooltip-id='table_tooltip'
-                                    data-tooltip-content={person[column.toLowerCase()] || ''}
-                                    data-tooltip-place="bottom"
-                                >
-                                    {editingCell.rowIndex === index && editingCell.field === column.toLowerCase() ? (
-                                        <input
-                                            value={newValue}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            onKeyDown={handleKeyDown}
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        person[column.toLowerCase()] || ''
-                                    )}
-                                </div>
-                            ))}
+                        </div>
+                        {data.map((person, index) => (
+                            <div
+                                className={`table_container_row vertical} ${isNearBottom === index ? 'show-border' : ''}`}
+                                style={{
+                                    backgroundColor:
+                                        (index + 1) % 2 === 0
+                                            ? selectedColorEvenRow
+                                            : selectedColorOddRow,
+                                    height: rowHeights[index],
+                                    flex: rowHeights[index] ? 'none' : '1 1',
+                                }}
+                                key={index}
+                                onClick={(e) => handleClick(index, e)}  // Gọi handleClick khi click
+                                onMouseMove={(e) => handleMouseMove(index, e)}  // Vẫn giữ sự kiện onMouseMove
+                                onMouseLeave={() => setIsNearBottom(null)} // Reset khi mouse rời
+                            >
+                                {columns.map((column, colIndex) => (
+                                    <div
+                                        className={`table_container_row_cell`}
+                                        style={{
+                                            width: columnWidths[colIndex],
+                                            flex: columnWidths[colIndex] ? 'none' : '1 1',
+                                            backgroundColor: columnBackgroundColors[colIndex],
+                                            borderBottomWidth: index === data.length - 1 ? '0px' : `${tableSetting.inlineBorderWidth}px`, // Kiểm tra nếu là dòng cuối
+                                            borderBottomColor: tableSetting.inlineBorderColor,
+                                            borderBottomStyle: tableSetting.inlineBorderStyle,
+                                        }}
+                                        onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
+                                        key={colIndex}
+                                        data-tooltip-id='table_tooltip'
+                                        data-tooltip-content={person[column.toLowerCase()] || ''}
+                                        data-tooltip-place="bottom"
+                                    >
+                                        {editingCell.rowIndex === index && editingCell.field === column.toLowerCase() ? (
+                                            <input
+                                                value={newValue}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                onKeyDown={handleKeyDown}
+                                                autoFocus
+                                            />
+                                        ) : (
+                                            person[column.toLowerCase()] || ''
+                                        )}
+                                    </div>
+                                ))}
 
-                            {/* <div className="table_container_row_cell">
+                                {/* <div className="table_container_row_cell">
                                 <button className="btnDelRow" onClick={() => deleteData(index)} style={{ width: '30px' }}>
                                     <TiDelete size={'20px'} color="red" />
                                 </button>
                             </div> */}
-                        </div>
-                    ))}
+                            </div>
+                        ))}
 
 
-                    <Tooltip id="table_tooltip" />
-                </div>
+                        <Tooltip id="table_tooltip" />
+                    </div>
+                </Rnd>
                 {
                     isPopupOpen && (
                         <>
@@ -559,12 +576,11 @@ const Table = () => {
                                                     <button onClick={decreaseWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
                                                     <input
                                                         type="number"
-                                                        value={widthInputRef.current} // Hiển thị giá trị width hiện tại
-                                                        defaultValue={tableSetting.width}
-                                                        onChange={handleWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
-                                                        onKeyDown={handleWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        value={widthInputValue}
+                                                        onChange={handleWidthInputChange}
+                                                        onKeyDown={handleWidthKeyPress}
                                                         style={{ width: '80px', textAlign: 'center' }}
-                                                        min="8"
+                                                        min="600"
                                                     />
                                                     <button onClick={increaseWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
                                                 </div>
@@ -575,12 +591,11 @@ const Table = () => {
                                                     <button onClick={decreaseHeight} style={{ margin: '0 10px', width: "40px" }}>-</button>
                                                     <input
                                                         type="number"
-                                                        value={heightInputRef.current}// Hiển thị giá trị width hiện tại
-                                                        defaultValue={tableSetting.height}
-                                                        onChange={handleHeightInputChange} // Cập nhật width tạm thời vào widthInputRef
-                                                        onKeyDown={handleHeightKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        value={heightInputValue}
+                                                        onChange={handleHeightInputChange}
+                                                        onKeyDown={handleHeightKeyPress}
                                                         style={{ width: '80px', textAlign: 'center' }}
-                                                        min="8"
+                                                        min="600"
                                                     />
                                                     <button onClick={increaseHeight} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
                                                 </div>
