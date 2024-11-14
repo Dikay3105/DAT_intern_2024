@@ -2,10 +2,7 @@ import React, { useRef, useState } from 'react';
 import './Table.scss';
 import { IoMdClose } from 'react-icons/io';
 import { IoIosArrowDown } from "react-icons/io";
-import { TiDelete } from "react-icons/ti";
 import { Tooltip } from 'react-tooltip'
-import { MdOutlineMoreVert } from 'react-icons/md';
-import { HexColorPicker } from 'react-colorful';
 import InputColor from 'react-input-color';
 // import { SketchPicker } from 'react-color';
 
@@ -24,9 +21,11 @@ const Table = () => {
     const [columns, setColumns] = useState(["NO", "Name", "Age", "Country"]);
     const [newColumn, setNewColumn] = useState('');
     const [selectedColumnIndex, setSelectedColumnIndex] = useState(null);
-    const [columnWidths, setColumnWidths] = useState(columns.map(() => '')); // Kích thước mặc định
+    const [columnWidths, setColumnWidths] = useState(columns.map(() => '')); // Chỉnh width cột
+    const [rowHeights, setRowHeights] = useState(data.map(() => '')); // Chỉnh height hàng
     const [columnBackgroundColors, setColumnBackgroundColors] = useState(columns.map(() => ''));
     const [newColumnWidth, setNewColumnWidth] = useState('200');
+    const [newRowHeight, setNewRowHeight] = useState('100')
     const [openDropdowns, setOpenDropdowns] = useState([]);
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedColor, setSelectedColor] = useState('#fffff'); // Màu mặc định
@@ -34,6 +33,7 @@ const Table = () => {
     const [fontSize, setFontSize] = useState(16); // Kích thước mặc định
     const [selectedColorOddRow, setSelectedColorOddRow] = useState('rgb(0,0,0,0)');
     const [selectedColorEvenRow, setSelectedColorEvenRow] = useState('rgb(0,0,0,0)');
+
     const [tableSetting, setTableSetting] = useState({
         width: 800,
         height: 600,
@@ -45,6 +45,7 @@ const Table = () => {
         inlineBorderStyle: 'solid',
         inlineBorderColor: '#ccc',
         headerColor: '#f2f2f2',
+        color: '#000000',
     });
     const heightInputRef = useRef(tableSetting.height);
     const widthInputRef = useRef(tableSetting.width);
@@ -231,6 +232,13 @@ const Table = () => {
         updatedWidths[index] = `${width}px`;
         setColumnWidths(updatedWidths);
     };
+
+    const updateRowHeight = (rowIndex, height) => {
+        const updatedHeights = [...rowHeights];
+        updatedHeights[rowIndex] = `${height}px`;
+        setRowHeights(updatedHeights);
+    };
+    
 
     const updateColumnBackgroundColor = (index, backgroundColor) => {
         const updatedBackgroundColors = [...columnBackgroundColors];
@@ -426,6 +434,7 @@ const Table = () => {
                     style={{
                         fontFamily: selectedFont,
                         fontSize: `${fontSize}px`,
+                        color: tableSetting.color,
                         width: `${tableSetting.width}px`,
                         height: `${tableSetting.height}px`,
                         borderWidth: `${tableSetting.borderWidth}px`,
@@ -450,12 +459,12 @@ const Table = () => {
 
                             </div>
                         ))}
-                        <div className="table_container_header_cell"
+                        {/* <div className="table_container_header_cell"
                             style={{
                                 width: '30px',
                             }}>
 
-                        </div>
+                        </div> */}
                     </div>
                     {data.map((person, index) => (
                         <div
@@ -464,7 +473,9 @@ const Table = () => {
                                 backgroundColor:
                                     (index + 1) % 2 === 0
                                         ? selectedColorEvenRow
-                                        : selectedColorOddRow
+                                        : selectedColorOddRow,
+                                height: rowHeights[index],
+                                flex: rowHeights[index] ? 'none' : '1 1',
                             }}
                             key={index}
                             onClick={(e) => handleClick(index, e)}  // Gọi handleClick khi click
@@ -502,11 +513,11 @@ const Table = () => {
                                 </div>
                             ))}
 
-                            <div className="table_container_row_cell">
+                            {/* <div className="table_container_row_cell">
                                 <button className="btnDelRow" onClick={() => deleteData(index)} style={{ width: '30px' }}>
                                     <TiDelete size={'20px'} color="red" />
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                     ))}
 
@@ -634,6 +645,17 @@ const Table = () => {
 
                                                     <button onClick={increaseFontSize} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
                                                 </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Font color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.color}
+                                                    onChange={(color) => setTableSetting(prevSetting => ({
+                                                        ...prevSetting,
+                                                        color: color.hex // Cập nhật thuộc tính color
+                                                    }))}
+                                                    placement="left"
+                                                />
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
                                                 <label style={{ marginRight: '10px' }}>Outline border width:</label>
@@ -765,7 +787,7 @@ const Table = () => {
                                                 Choose row Del
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <div className="table_popup_main_dropdown_content_item_change">
-                                                        <select className="table_popup_main_dropdown_content_item_change_select" onChange={(e) => setSelectedRow(parseInt(e.target.value))} value={selectedRow || ''}>
+                                                        <select className="table_popup_main_dropdown_content_item_change_select" onChange={(e) => setSelectedRow(parseInt(e.target.value))} value={selectedRow !== null ? selectedRow : -1}>
                                                             <option value="">Chọn hàng</option>
                                                             {data.map((row, index) => (
                                                                 <option key={row.id} value={index}>
@@ -776,9 +798,43 @@ const Table = () => {
                                                     </div>
 
                                                     <button onClick={() => deleteData(selectedRow)}>Del</button>
-
                                                 </div>
                                             </div>
+
+                                            <div className="table_popup_main_dropdown_content_item">
+                                                <label>Choose row fix height</label>
+                                                <div className="table_popup_main_dropdown_content_item_change">
+                                                    <select
+                                                        value={selectedRow !== null ? selectedRow : -1}
+                                                        onChange={(e) => setSelectedRow(Number(e.target.value))}
+                                                        className="table_popup_main_dropdown_content_item_change_select"
+                                                    >
+                                                        <option value={-1}>Chọn hàng</option>
+                                                        {data.map((_, index) => (
+                                                            <option key={index} value={index}>
+                                                                Hàng {index + 1}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div className="table_popup_main_dropdown_content_item">
+                                                {selectedRow !== null && (
+                                                    <div className="table_popup_main_dropdown_content_item">
+                                                        Chiều cao cho hàng {selectedRow + 1}:
+                                                        <div className="table_popup_main_dropdown_content_item_inputGroup">
+                                                            <input
+                                                                type="number"
+                                                                value={newRowHeight}
+                                                                onChange={(e) => setNewRowHeight(e.target.value)}
+                                                            />
+                                                            <button onClick={() => updateRowHeight(selectedRow, newRowHeight)}>Lưu</button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
                                             <div className="table_popup_main_dropdown">
                                                 <div className="table_popup_main_dropdown_title" onClick={() => toggleDropdown(7)}>Change row diff color<IoIosArrowDown /></div>
                                                 <div className={`table_popup_main_dropdown_content ${openDropdowns.includes(7) ? 'active' : ''}`} >
