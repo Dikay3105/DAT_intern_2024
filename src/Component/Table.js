@@ -374,7 +374,7 @@ const Table = () => {
     const decreaseBorderWidth = () => {
         setTableSetting(prevSetting => ({
             ...prevSetting,
-            borderWidth: Math.max(prevSetting.borderWidth - 1, 1)
+            borderWidth: Math.max(prevSetting.borderWidth - 1, 0)
         }));
         bordeWidthInputRef.current = tableSetting.borderWidth - 1;
     };
@@ -404,11 +404,17 @@ const Table = () => {
     };
 
     const decreaseInlineBorderWidth = () => {
-        setTableSetting(prevSetting => ({
-            ...prevSetting,
-            inlineBorderWidth: Math.max(prevSetting.inlineBorderWidth - 1, 1)
-        }));
-        inlineBordeWidthInputRef.current = tableSetting.inlineBorderWidth - 1;
+        setTableSetting(prevSetting => {
+            if (prevSetting.inlineBorderWidth > 0) {
+                const newWidth = prevSetting.inlineBorderWidth - 1;
+                inlineBordeWidthInputRef.current = newWidth;
+                return {
+                    ...prevSetting,
+                    inlineBorderWidth: newWidth
+                };
+            }
+            return prevSetting; 
+        });
     };
 
     const handleInlineBorderWidthKeyPress = (e) => {
@@ -772,7 +778,7 @@ const Table = () => {
                                                     onChange={(color) => {
                                                         setTableSetting(prevSetting => ({
                                                             ...prevSetting,
-                                                            inlineBorderColororderColor: color.hex
+                                                            inlineBorderColor: color.hex
                                                         }));
                                                     }}
                                                     placement="right"
