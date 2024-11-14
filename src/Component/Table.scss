@@ -12,7 +12,7 @@
         flex-direction: column;
         height: 400px;
         overflow: auto;
-        border: 1px solid #ccc;
+        // border: 1px solid #ccc;
         // margin: auto;
 
         &::-webkit-scrollbar {
@@ -50,8 +50,9 @@
             right: 0;
             top: 0;
             z-index: 1;
-            
+
             height: 50px;
+
             &.vertical {
                 flex-direction: column;
 
@@ -70,13 +71,13 @@
                     margin-top: 3px;
                 }
 
-                &:last-child {
-                    background: white;
-                    border: none;
-                    padding-left: 0;
-                    padding-right: 0;
-                    flex: none;
-                }
+                // &:last-child {
+                //     background: white;
+                //     border: none;
+                //     padding-left: 0;
+                //     padding-right: 0;
+                //     flex: none;
+                // }
 
             }
         }
@@ -111,7 +112,7 @@
                     position: absolute;
                     bottom: 0;
                     left: 0;
-                    width: calc(100% - 30px);
+                    width: calc(100%);
                     /* Giảm chiều dài viền */
                     height: 2px;
                     background-color: red;
@@ -133,14 +134,14 @@
                 justify-content: center;
                 align-items: center;
 
-                &:last-child {
-                    background: white;
-                    border: none;
-                    text-align: start;
-                    padding-left: 0;
-                    padding-right: 0;
-                    flex: none;
-                }
+                // &:last-child {
+                //     background: white;
+                //     border: none;
+                //     text-align: start;
+                //     padding-left: 0;
+                //     padding-right: 0;
+                //     flex: none;
+                // }
 
                 input {
                     height: 100%;
