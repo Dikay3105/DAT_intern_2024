@@ -4,7 +4,6 @@ import { IoMdClose } from 'react-icons/io';
 import { IoIosArrowDown } from "react-icons/io";
 import { Tooltip } from 'react-tooltip'
 import InputColor from 'react-input-color';
-// import { SketchPicker } from 'react-color';
 import { Rnd } from "react-rnd";
 
 const Table = () => {
@@ -15,7 +14,6 @@ const Table = () => {
     ]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isNearBottom, setIsNearBottom] = useState(false);
-    const [openPopupColumn, setOpenPopupColumn] = useState(false);
     const [editingCell, setEditingCell] = useState({ rowIndex: null, field: null });
     const [newValue, setNewValue] = useState('');
     const [addCount, setAddCount] = useState(1);
@@ -42,17 +40,20 @@ const Table = () => {
         borderWidth: 2,
         borderStyle: 'solid',
         borderColor: '#ccc',
-        inlineBorderWidth: 2,
-        inlineBorderStyle: 'solid',
-        inlineBorderColor: '#ccc',
+        inlineBorderHorizontalWidth: 2,
+        inlineBorderHorizontalStyle: 'solid',
+        inlineBorderHorizontalColor: '#ccc',
+        inlineBorderVerticalWidth: 2,
+        inlineBorderVerticalStyle: 'solid',
+        inlineBorderVerticalColor: '#ccc',
         headerColor: '#f2f2f2',
         color: '#000000',
     });
     const [heightInputValue, setHeightInputValue] = useState(tableSetting.height);
     const [widthInputValue, setWidthInputValue] = useState(tableSetting.width);
     const bordeWidthInputRef = useRef(tableSetting.borderWidth);
-    const inlineBordeWidthInputRef = useRef(tableSetting.inlineBorderWidth);
-
+    const inlineBordeWidthInputRef = useRef(tableSetting.inlineBorderHorizontalWidth);
+    const inlineBorderVerticalWidthInputRef = useRef(tableSetting.inlineBorderVerticalWidth);
 
     const handleMouseMove = (index, e) => {
         const div = e.currentTarget;
@@ -202,10 +203,6 @@ const Table = () => {
         setIsPopupOpen(!isPopupOpen);
     };
 
-    const handlPopupColumn = (columnIndex) => {
-        setSelectedColumnIndex(columnIndex);
-        setOpenPopupColumn(!openPopupColumn)
-    }
 
     const updateColumnName = (index) => {
         if (!newColumn.trim()) {
@@ -275,7 +272,6 @@ const Table = () => {
 
             // Đặt lại columnToDelete và đóng popup
             setSelectedColumnIndex(null);
-            setOpenPopupColumn(false)
 
             // Để xem dữ liệu mới trong console sau khi cập nhật
             setTimeout(() => console.log(updatedData), 0);
@@ -321,6 +317,7 @@ const Table = () => {
     const handleWidthKeyPress = (e) => {
         if (e.key === 'Enter') {
             const newWidth = Number(widthInputValue) || 200;
+            console.log('Updating table width to:', newWidth); // Debug
             setTableSetting(prevSetting => ({
                 ...prevSetting,
                 width: newWidth
@@ -347,7 +344,13 @@ const Table = () => {
         setHeightInputValue(prevHeight => Math.max(prevHeight - 2, 600)); // Cập nhật input
     };
 
-    const handleHeightInputChange = (e) => {
+/*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Cập nhật giá trị tạm th  khi nhập vào input Height.
+     * 
+     * @param {React.ChangeEvent<HTMLInputElement>} e - Sự kiện thay   i value của input.
+     */
+/******  c443f8e7-f6cf-4765-8803-30777e2ef48b  *******/    const handleHeightInputChange = (e) => {
         setHeightInputValue(Number(e.target.value)); // Cập nhật giá trị tạm thời khi nhập
     };
 
@@ -372,12 +375,19 @@ const Table = () => {
     };
 
     const decreaseBorderWidth = () => {
-        setTableSetting(prevSetting => ({
-            ...prevSetting,
-            borderWidth: Math.max(prevSetting.borderWidth - 1, 0)
-        }));
-        bordeWidthInputRef.current = tableSetting.borderWidth - 1;
+        setTableSetting(prevSetting => {
+            if (prevSetting.borderWidth > 0) {
+                const newWidth = prevSetting.borderWidth - 1;
+                bordeWidthInputRef.current = newWidth;
+                return {
+                    ...prevSetting,
+                    borderWidth: newWidth
+                };
+            }
+            return prevSetting;
+        });
     };
+
 
     const handleBorderWidthKeyPress = (e) => {
         if (e.key === 'Enter') {
@@ -395,48 +405,87 @@ const Table = () => {
     //--------------------------------------
 
     //------------Change inlineborder width function
-    const increaseInlineBorderWidth = () => {
+    const increaseinlineBorderHorizontalWidth = () => {
         setTableSetting(prevSetting => ({
             ...prevSetting,
-            inlineBorderWidth: prevSetting.inlineBorderWidth + 1
+            inlineBorderHorizontalWidth: prevSetting.inlineBorderHorizontalWidth + 1
         }));
-        inlineBordeWidthInputRef.current = tableSetting.inlineBorderWidth + 1;
+        inlineBordeWidthInputRef.current = tableSetting.inlineBorderHorizontalWidth + 1;
     };
 
-    const decreaseInlineBorderWidth = () => {
+    const decreaseinlineBorderHorizontalWidth = () => {
         setTableSetting(prevSetting => {
-            if (prevSetting.inlineBorderWidth > 0) {
-                const newWidth = prevSetting.inlineBorderWidth - 1;
+            if (prevSetting.inlineBorderHorizontalWidth > 0) {
+                const newWidth = prevSetting.inlineBorderHorizontalWidth - 1;
                 inlineBordeWidthInputRef.current = newWidth;
                 return {
                     ...prevSetting,
-                    inlineBorderWidth: newWidth
+                    inlineBorderHorizontalWidth: newWidth
                 };
             }
-            return prevSetting; 
+            return prevSetting;
         });
     };
 
-    const handleInlineBorderWidthKeyPress = (e) => {
+    const handleinlineBorderHorizontalWidthKeyPress = (e) => {
         if (e.key === 'Enter') {
             const newHeight = Number(inlineBordeWidthInputRef.current) || 0;
             setTableSetting(prevSetting => ({
                 ...prevSetting,
-                inlineBorderWidth: newHeight
+                inlineBorderHorizontalWidth: newHeight
             }));
         }
     };
 
-    const handleInlineBorderWidthInputChange = (e) => {
+    const handleinlineBorderHorizontalWidthInputChange = (e) => {
         inlineBordeWidthInputRef.current = e.target.value;
+    };
+    //--------------------------------------
+
+    //------------Change inlineborder vertical width function
+    const increaseinlineBorderVerticalWidth = () => {
+        setTableSetting(prevSetting => ({
+            ...prevSetting,
+            inlineBorderVerticalWidth: prevSetting.inlineBorderVerticalWidth + 1
+        }));
+        inlineBorderVerticalWidthInputRef.current = tableSetting.inlineBorderVerticalWidth + 1;
+    };
+
+    const decreaseinlineBorderVerticalWidth = () => {
+        setTableSetting(prevSetting => {
+            if (prevSetting.inlineBorderVerticalWidth > 0) {
+                const newWidth = prevSetting.inlineBorderVerticalWidth - 1;
+                inlineBorderVerticalWidthInputRef.current = newWidth;
+                return {
+                    ...prevSetting,
+                    inlineBorderVerticalWidth: newWidth
+                };
+            }
+            return prevSetting;
+        });
+    };
+
+
+    const handleinlineBorderVerticalWidthKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            const newHeight = Number(inlineBorderVerticalWidthInputRef.current) || 0;
+            setTableSetting(prevSetting => ({
+                ...prevSetting,
+                inlineBorderVerticalWidth: newHeight
+            }));
+        }
+    };
+
+    const handleinlineBorderVerticalWidthInputChange = (e) => {
+        inlineBorderVerticalWidthInputRef.current = e.target.value;
     };
     //--------------------------------------
 
     return (
         <>
-            <button onClick={() => console.log(data)}>Check</button>
             <div className="table_gear" onClick={() => setIsPopupOpen(true)}>⚙️</div>
             <div className="table">
+
                 <Rnd
                     style={{
                         fontFamily: selectedFont,
@@ -445,20 +494,21 @@ const Table = () => {
                         borderColor: tableSetting.borderColor,
                         borderStyle: tableSetting.borderStyle,
                         backgroundColor: tableSetting.backgroundColor,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
                     }}
-                    default={{
-                        x: 0,
-                        y: 0,
-                        width: tableSetting.width,
-                        height: tableSetting.height
-                    }}
-                    onResizeStop={() => {
-
+                    size={{ width: tableSetting.width, height: tableSetting.height }}  // Cập nhật kích thước theo state
+                    onResizeStop={(e, direction, ref, delta, position) => {
+                        const newWidth = ref.style.width;
+                        const newHeight = ref.style.height;
+                        console.log('Resizing width:', newWidth, 'height:', newHeight);
+                        setTableSetting(prevSetting => ({
+                            ...prevSetting,
+                            width: newWidth,
+                            height: newHeight
+                        }));
                     }}
                 >
+
+
                     <div className={`table_container`}
                         style={{
                             height: '100%',
@@ -471,9 +521,12 @@ const Table = () => {
                                         width: columnWidths[key],
                                         flex: columnWidths[key] ? 'none' : '1 1',
                                         backgroundColor: columnBackgroundColors[key],
-                                        borderBottomWidth: `${tableSetting.inlineBorderWidth}px`,
-                                        borderBottomColor: tableSetting.inlineBorderColor,
-                                        borderBottomStyle: tableSetting.inlineBorderStyle,
+                                        borderBottomWidth: `${tableSetting.inlineBorderHorizontalWidth}px`,
+                                        borderBottomColor: tableSetting.inlineBorderHorizontalColor,
+                                        borderBottomStyle: tableSetting.inlineBorderHorizontalStyle,
+                                        borderRightStyle: tableSetting.inlineBorderVerticalStyle,
+                                        borderRightWidth: `${tableSetting.inlineBorderVerticalWidth}px`,
+                                        borderRightColor: tableSetting.inlineBorderVerticalColor,
                                         backgroundColor: tableSetting.headerColor
                                     }}
                                 >
@@ -511,9 +564,12 @@ const Table = () => {
                                             width: columnWidths[colIndex],
                                             flex: columnWidths[colIndex] ? 'none' : '1 1',
                                             backgroundColor: columnBackgroundColors[colIndex],
-                                            borderBottomWidth: index === data.length - 1 ? '0px' : `${tableSetting.inlineBorderWidth}px`, // Kiểm tra nếu là dòng cuối
-                                            borderBottomColor: tableSetting.inlineBorderColor,
-                                            borderBottomStyle: tableSetting.inlineBorderStyle,
+                                            borderBottomWidth: index === data.length - 1 ? '0px' : `${tableSetting.inlineBorderHorizontalWidth}px`, // Kiểm tra nếu là dòng cuối
+                                            borderBottomColor: tableSetting.inlineBorderHorizontalColor,
+                                            borderBottomStyle: tableSetting.inlineBorderHorizontalStyle,
+                                            borderRightStyle: tableSetting.inlineBorderVerticalStyle,
+                                            borderRightWidth: `${tableSetting.inlineBorderVerticalWidth}px`,
+                                            borderRightColor: tableSetting.inlineBorderVerticalColor,
                                         }}
                                         onDoubleClick={() => handleDoubleClick(index, column.toLowerCase(), person[column.toLowerCase()] || '')}
                                         key={colIndex}
@@ -695,19 +751,35 @@ const Table = () => {
                                                 </div>
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
-                                                <label style={{ marginRight: '10px' }}>Inline border width:</label>
+                                                <label style={{ marginRight: '10px' }}>Inline border horizontal width:</label>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <button onClick={decreaseInlineBorderWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <button onClick={decreaseinlineBorderHorizontalWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
                                                     <input
                                                         type="number"
                                                         value={inlineBordeWidthInputRef.current}// Hiển thị giá trị width hiện tại
-                                                        defaultValue={tableSetting.inlineBorderWidth}
-                                                        onChange={handleInlineBorderWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
-                                                        onKeyDown={handleInlineBorderWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        defaultValue={tableSetting.inlineBorderHorizontalWidth}
+                                                        onChange={handleinlineBorderHorizontalWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleinlineBorderHorizontalWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
                                                         style={{ width: '80px', textAlign: 'center' }}
                                                         min="8"
                                                     />
-                                                    <button onClick={increaseInlineBorderWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                    <button onClick={increaseinlineBorderHorizontalWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label style={{ marginRight: '10px' }}>Inline border vertical width:</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <button onClick={decreaseinlineBorderVerticalWidth} style={{ margin: '0 10px', width: "40px" }}>-</button>
+                                                    <input
+                                                        type="number"
+                                                        value={inlineBorderVerticalWidthInputRef.current}// Hiển thị giá trị width hiện tại
+                                                        defaultValue={tableSetting.inlineBorderVerticalWidth}
+                                                        onChange={handleinlineBorderVerticalWidthInputChange} // Cập nhật width tạm thời vào widthInputRef
+                                                        onKeyDown={handleinlineBorderVerticalWidthKeyPress} // Chỉ cập nhật vào state khi nhấn Enter
+                                                        style={{ width: '80px', textAlign: 'center' }}
+                                                        min="8"
+                                                    />
+                                                    <button onClick={increaseinlineBorderVerticalWidth} style={{ margin: '0 0 0 10px', width: "40px" }}>+</button>
                                                 </div>
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
@@ -735,17 +807,41 @@ const Table = () => {
                                                 </div>
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
-                                                Inline border style:
+                                                Inline border horizontal style:
                                                 <div className="table_popup_main_dropdown_content_item_change">
                                                     <select
                                                         className="table_popup_main_dropdown_content_item_change_select"
                                                         onChange={(e) => {
                                                             setTableSetting(prevSetting => ({
                                                                 ...prevSetting,
-                                                                inlineBorderStyle: e.target.value
+                                                                inlineBorderHorizontalStyle: e.target.value
                                                             }));
                                                         }}
-                                                        value={tableSetting.inlineBorderStyle}
+                                                        value={tableSetting.inlineBorderHorizontalStyle}
+                                                    >
+                                                        <option value="solid">Solid</option>
+                                                        <option value="dashed">Dashed</option>
+                                                        <option value="dotted">Dotted</option>
+                                                        <option value="double">Double</option>
+                                                        <option value="groove">Groove</option>
+                                                        <option value="ridge">Ridge</option>
+                                                        <option value="inset">Inset</option>
+                                                        <option value="outset">Outset</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                Inline border vertical style:
+                                                <div className="table_popup_main_dropdown_content_item_change">
+                                                    <select
+                                                        className="table_popup_main_dropdown_content_item_change_select"
+                                                        onChange={(e) => {
+                                                            setTableSetting(prevSetting => ({
+                                                                ...prevSetting,
+                                                                inlineBorderVerticalStyle: e.target.value
+                                                            }));
+                                                        }}
+                                                        value={tableSetting.inlineBorderVerticalStyle}
                                                     >
                                                         <option value="solid">Solid</option>
                                                         <option value="dashed">Dashed</option>
@@ -768,20 +864,34 @@ const Table = () => {
                                                             borderColor: color.hex
                                                         }));
                                                     }}
-                                                    placement="right"
+                                                    placement="left"
                                                 />
                                             </div>
                                             <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
-                                                <label>Inline border color:</label>
+                                                <label>Inline border horizontal color:</label>
                                                 <InputColor
-                                                    initialValue={tableSetting.inlineBorderColor}
+                                                    initialValue={tableSetting.inlineBorderHorizontalColor}
                                                     onChange={(color) => {
                                                         setTableSetting(prevSetting => ({
                                                             ...prevSetting,
-                                                            inlineBorderColor: color.hex
+                                                            inlineBorderHorizontalColor: color.hex
                                                         }));
                                                     }}
-                                                    placement="right"
+                                                    placement="left"
+                                                />
+                                            </div>
+                                            <div className="table_popup_main_dropdown_content_item" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <label>Inline border vertical color:</label>
+                                                <InputColor
+                                                    initialValue={tableSetting.inlineBorderVerticalColor}
+                                                    onChange={(color) => {
+                                                        setTableSetting(prevSetting => ({
+                                                            ...prevSetting,
+                                                            inlineBorderVerticalColor: color.hex
+
+                                                        }));
+                                                    }}
+                                                    placement="left"
                                                 />
                                             </div>
                                         </div>
@@ -925,7 +1035,6 @@ const Table = () => {
                                                         />
                                                         <button onClick={() => {
                                                             updateColumnBackgroundColor(selectedColumnIndex, selectedColor);
-                                                            setOpenPopupColumn(false); // Đóng popup sau khi xác nhận
                                                         }}>
                                                             Xác Nhận
                                                         </button>
@@ -1032,9 +1141,6 @@ const Table = () => {
                                                     </div>
                                                 </div>
                                             </div>
-
-
-
                                         </div>
                                     </div>
                                 </div>
@@ -1042,8 +1148,6 @@ const Table = () => {
                         </>
                     )
                 }
-
-
             </div >
         </>
     );

@@ -12,7 +12,7 @@
         flex-direction: column;
         height: 400px;
         overflow: auto;
-        border: 1px solid #ccc;
+        // border: 1px solid #ccc;
         // margin: auto;
 
         &::-webkit-scrollbar {
@@ -50,8 +50,9 @@
             right: 0;
             top: 0;
             z-index: 1;
-            
+
             height: 50px;
+
             &.vertical {
                 flex-direction: column;
 
@@ -70,13 +71,13 @@
                     margin-top: 3px;
                 }
 
-                &:last-child {
-                    background: white;
-                    border: none;
-                    padding-left: 0;
-                    padding-right: 0;
-                    flex: none;
-                }
+                // &:last-child {
+                //     background: white;
+                //     border: none;
+                //     padding-left: 0;
+                //     padding-right: 0;
+                //     flex: none;
+                // }
 
             }
         }
@@ -111,7 +112,7 @@
                     position: absolute;
                     bottom: 0;
                     left: 0;
-                    width: calc(100% - 30px);
+                    width: calc(100%);
                     /* Giảm chiều dài viền */
                     height: 2px;
                     background-color: red;
@@ -133,14 +134,14 @@
                 justify-content: center;
                 align-items: center;
 
-                &:last-child {
-                    background: white;
-                    border: none;
-                    text-align: start;
-                    padding-left: 0;
-                    padding-right: 0;
-                    flex: none;
-                }
+                // &:last-child {
+                //     background: white;
+                //     border: none;
+                //     text-align: start;
+                //     padding-left: 0;
+                //     padding-right: 0;
+                //     flex: none;
+                // }
 
                 input {
                     height: 100%;
@@ -214,6 +215,55 @@
         z-index: 3;
         overflow: auto;
         user-select: none;
+        
+        overflow-y: scroll;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+         display: none;
+         /* Safari and Chrome */
+        }
+
+        // text
+        // white-space: nowrap; // ngan xuong dong
+        // overflow: hidden; // an noi dung vuot ra ngoai
+        // text-overflow: ellipsis; // hien thi 3 cham khi vuot ra ngoai
+
+        // input
+        // box-sizing: border-box;
+        // -webkit-box-sizing: border-box;
+        // -moz-box-sizing: border-box;
+
+        // input [type=number] // xóa nút tăng giảm của type input number
+        // & input::-webkit-outer-spin-button,
+        // input::-webkit-inner-spin-button {
+        //     -webkit-appearance: none;
+        //     margin: 0;
+        // }
+
+        //Edit Scrollbar
+        // &::-webkit-scrollbar {
+        //     width: 8px;
+        //     height: 10px;
+        // }
+
+        /* Track */
+        // &::-webkit-scrollbar-track {
+        //     background-color: rgba(0, 0, 0, 0);
+        //     border-radius: 3px;
+        // }
+
+        /* Handle */
+        // &::-webkit-scrollbar-thumb {
+        //     background: #888;
+        //     border-radius: 10px;
+        // }
+
+        /* Handle on hover */
+        // &::-webkit-scrollbar-thumb:hover {
+        //     background: #555;
+        // }
 
         &_title {
             display: flex;
